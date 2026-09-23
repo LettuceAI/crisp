@@ -22,7 +22,8 @@ export function CodeBlock({ code, label, wrap, lineNumbers, maxHeight = 320, cla
   const lines = code.split("\n");
   return (
     <div className={cn("overflow-hidden rounded-xl border border-line bg-surface-1", className)}>
-      {(label || true) && (
+      {/* Always drawn: the copy button lives here even when there is no label. */}
+      {(
         <div className="flex items-center gap-2 border-b border-line bg-surface-1 px-3 py-1.5">
           <span className="min-w-0 flex-1 truncate font-mono text-2xs text-fg-3">{label}</span>
           <CopyButton value={code} />

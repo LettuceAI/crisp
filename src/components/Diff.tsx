@@ -8,7 +8,7 @@ interface Line { op: Op; text: string; a?: number; b?: number }
 function diffLines(before: string, after: string): Line[] {
   const A = before.split("\n");
   const B = after.split("\n");
-  const table: number[][] = Array.from({ length: A.length + 1 }, () => new Array(B.length + 1).fill(0));
+  const table: number[][] = Array.from({ length: A.length + 1 }, () => Array.from({ length: B.length + 1 }, () => 0));
   for (let i = A.length - 1; i >= 0; i--) {
     for (let j = B.length - 1; j >= 0; j--) {
       table[i][j] = A[i] === B[j] ? table[i + 1][j + 1] + 1 : Math.max(table[i + 1][j], table[i][j + 1]);

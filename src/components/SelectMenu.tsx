@@ -77,7 +77,9 @@ export function SelectMenu<T extends string>(props: SelectMenuProps<T>) {
     const map = new Map<string, SelectMenuOption<T>[]>();
     for (const option of options) {
       const key = option.group ?? "";
-      map.get(key)?.push(option) ?? map.set(key, [option]);
+      const bucket = map.get(key);
+      if (bucket) bucket.push(option);
+      else map.set(key, [option]);
     }
     return Array.from(map.entries());
   }, [options]);

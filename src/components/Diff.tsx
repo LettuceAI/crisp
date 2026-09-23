@@ -18,9 +18,17 @@ function diffLines(before: string, after: string): Line[] {
   let i = 0;
   let j = 0;
   while (i < A.length && j < B.length) {
-    if (A[i] === B[j]) out.push({ op: "same", text: A[i], a: i + 1, b: ++j && i + 1 }), i++;
-    else if (table[i + 1][j] >= table[i][j + 1]) out.push({ op: "remove", text: A[i], a: ++i });
-    else out.push({ op: "add", text: B[j], b: ++j });
+    if (A[i] === B[j]) {
+      out.push({ op: "same", text: A[i], a: i + 1, b: j + 1 });
+      i++;
+      j++;
+    } else if (table[i + 1][j] >= table[i][j + 1]) {
+      i++;
+      out.push({ op: "remove", text: A[i - 1], a: i });
+    } else {
+      j++;
+      out.push({ op: "add", text: B[j - 1], b: j });
+    }
   }
   while (i < A.length) out.push({ op: "remove", text: A[i], a: ++i });
   while (j < B.length) out.push({ op: "add", text: B[j], b: ++j });

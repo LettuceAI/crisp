@@ -59,7 +59,9 @@ export function CommandPalette({
     const map = new Map<string, Command[]>();
     for (const command of filtered) {
       const key = command.group ?? "";
-      map.get(key)?.push(command) ?? map.set(key, [command]);
+      const bucket = map.get(key);
+      if (bucket) bucket.push(command);
+      else map.set(key, [command]);
     }
     return Array.from(map.entries());
   }, [filtered]);

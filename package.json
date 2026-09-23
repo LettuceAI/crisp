@@ -13,11 +13,15 @@
     "cross-platform"
   ],
   "license": "MIT",
-  "type": "module",
+  "homepage": "https://github.com/LettuceAI/crisp#readme",
+  "bugs": {
+    "url": "https://github.com/LettuceAI/crisp/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/LettuceAI/crisp"
   },
+  "type": "module",
   "files": [
     "dist",
     "src/styles.css"
@@ -34,6 +38,10 @@
       "import": "./dist/index.js"
     },
     "./styles.css": "./src/styles.css"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",

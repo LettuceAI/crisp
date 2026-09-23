@@ -1,0 +1,93 @@
+name: Release
+
+run-name: Release ${{ inputs.bump }} by @${{ github.actor }}
+
+# Bumps the version, tags it, and opens a GitHub release with notes generated from
+# the commits since the last tag. Publishing to npm follows from the release event
+# (see publish.yml), so a release can also be cut by hand from the GitHub UI.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump"
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+      preid:
+        description: "Prerelease id (only for prerelease), e.g. beta"
+        required: false
+        default: "beta"
+        type: string
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Tag and release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout (full history for notes)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "latest"
+
+      - name: Setup Node (for npm version)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Verify the build before tagging
+        run: |
+          bun run typecheck
+          bun run build
+
+      - name: Bump version
+        id: bump
+        run: |
+          if [ "${{ inputs.bump }}" = "prerelease" ]; then
+            npm version prerelease --preid "${{ inputs.preid }}" --no-git-tag-version
+          else
+            npm version "${{ inputs.bump }}" --no-git-tag-version
+          fi
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore(release): ${{ steps.bump.outputs.tag }}"
+          git tag -a "${{ steps.bump.outputs.tag }}" -m "${{ steps.bump.outputs.tag }}"
+          git push origin HEAD:main
+          git push origin "${{ steps.bump.outputs.tag }}"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FLAGS="--generate-notes"
+          case "${{ steps.bump.outputs.version }}" in *-*) FLAGS="$FLAGS --prerelease" ;; esac
+          gh release create "${{ steps.bump.outputs.tag }}" --title "${{ steps.bump.outputs.tag }}" $FLAGS

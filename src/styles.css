@@ -1,0 +1,392 @@
+/* ──────────────────────────────────────────────────────────────
+   Crisp — LettuceAI's design system.
+   Palette names match the app's runtime vars 1:1 so the
+   ColorCustomization feature keeps working when this ships.
+   ────────────────────────────────────────────────────────────── */
+@theme {
+  --color-surface: #050505;
+  /* Two visible steps of elevation. Raised carries cards; overlay carries anything
+     floating above the page. Both lift toward the light in either theme. */
+  --color-surface-1: #131313;
+  --color-surface-2: #1e1e1e;
+  --color-surface-el: #131313;
+  --color-nav: #131313;
+  --color-fg: #ffffff;
+  --color-accent: #65c789;
+  /* Text that sits on a solid accent fill. Derived per theme, because a pale accent
+     needs dark text and that is not a decision a call site should be making. */
+  --color-on-accent: #050505;
+  --color-knob: #ffffff;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+  --color-secondary: #a78bfa;
+
+  /* Text tiers. These are the only four strengths text may use.
+     fg   → primary      (titles, values, body)
+     fg-2 → secondary    (labels, supporting copy)   ~10:1
+     fg-3 → muted        (hints, meta, placeholders) ~5:1  — last readable tier
+     fg-4 → faint        (disabled, decorative only) ~3:1  — never carries meaning
+
+     fg-4 is below AA at any size. It is for things you look past: chevrons, separators,
+     list markers, placeholders, a step you have not reached. The moment a value is read
+     — a timestamp, a count, a name, a shortcut — it belongs to fg-3 or above. */
+  --color-fg-2: color-mix(in oklab, var(--color-fg) 72%, var(--color-surface));
+  --color-fg-3: color-mix(in oklab, var(--color-fg) 50%, var(--color-surface));
+  --color-fg-4: color-mix(in oklab, var(--color-fg) 34%, var(--color-surface));
+
+  /* Fills and lines are fg-tinted, never grey hexes, so they follow custom colors. */
+  --color-fill: color-mix(in oklab, var(--color-fg) 5%, transparent);
+  --color-fill-2: color-mix(in oklab, var(--color-fg) 8%, transparent);
+  --color-fill-3: color-mix(in oklab, var(--color-fg) 12%, transparent);
+  --color-line: color-mix(in oklab, var(--color-fg) 10%, transparent);
+  --color-line-2: color-mix(in oklab, var(--color-fg) 16%, transparent);
+  --color-line-3: color-mix(in oklab, var(--color-fg) 26%, transparent);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Type scale — eight steps, 11px floor. Replaces the 15 ad-hoc px sizes. */
+  --text-2xs: 11px;  --text-2xs--line-height: 14px;
+  --text-xs: 12px;   --text-xs--line-height: 16px;
+  --text-sm: 13px;   --text-sm--line-height: 18px;
+  --text-base: 14px; --text-base--line-height: 20px;
+  --text-lg: 16px;   --text-lg--line-height: 22px;
+  --text-xl: 20px;   --text-xl--line-height: 26px;
+  --text-2xl: 24px;  --text-2xl--line-height: 30px;
+  --text-3xl: 28px;  --text-3xl--line-height: 34px;
+
+  /* Radius roles: controls lg(8) · fields/cards xl(12) · sheets 2xl(16) · pills full */
+
+  --edge-light: rgb(255 255 255 / 0.08);
+  --edge-dark: rgb(0 0 0 / 0.55);
+  --edge-ambient: rgb(0 0 0 / 0.35);
+  --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.5);
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* Density. Controls and rows read from these so `data-density="compact"` on the root
+     tightens everything at once — dense screens (tables, logs, long lists) can breathe
+     differently from open ones without every call site knowing. */
+  --control-sm: 2rem;
+  --control-md: 2.5rem;
+  --control-lg: 2.75rem;
+  --row-py: 0.75rem;
+  --card-p: 1rem;
+
+  /* Motion. Mirrors src/lib/motion.ts — pick by what the motion is for. */
+  --motion-instant: 120ms;
+  --motion-quick: 180ms;
+  --motion-slow: 300ms;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* Safe areas go through these rather than env() directly, so a simulated device on the
+   lab page can supply the inset its hardware would. In the app they are env() and
+   nothing else. */
+:root {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+/* min-height, not height: a sticky header's containing block is #root, so a fixed
+   100% height makes it stop sticking as soon as you scroll past the first screen. */
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+}
+
+/* Keyboard focus is visible everywhere; pointer focus is not. One rule, whole app. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Text fields carry their own focus treatment — a border and fill change drawn tight
+   to the control. The offset ring on top of that is a second signal for one state, and
+   around a composer's textarea it boxes a box. Opt them out; `.focus-ring` opts back in
+   for a field that has no styling of its own. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+input.focus-ring:focus-visible,
+textarea.focus-ring:focus-visible,
+select.focus-ring:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* A dialog takes focus on open so the keyboard lands inside it. That is plumbing, not
+   a target the person picked, and ringing the whole sheet in accent says otherwise. */
+[role="dialog"][tabindex="-1"]:focus,
+[role="dialog"][tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+[data-density="compact"] {
+  --control-sm: 1.75rem;
+  --control-md: 2.125rem;
+  --control-lg: 2.375rem;
+  --row-py: 0.5rem;
+  --card-p: 0.75rem;
+}
+
+@layer utilities {
+  /* Use these instead of `duration-150` and friends: three intents, not five numbers. */
+  .motion-instant { transition-duration: var(--motion-instant); }
+  .motion-quick { transition-duration: var(--motion-quick); }
+  .motion-slow { transition-duration: var(--motion-slow); }
+}
+
+@layer components {
+  /*
+   * A control that sits slightly proud of the page: a light hairline along its top edge,
+   * a 1px lip beneath it, and a 2px ambient. Pressing removes the lip and sinks the
+   * surface, so the movement is the feedback rather than a colour change alone.
+   *
+   * Deliberately shallow. Large blur radii are what make a webview struggle, and the
+   * effect being asked for is a key, not a floating card.
+   */
+  .raise {
+    box-shadow:
+      inset 0 1px 0 var(--edge-light),
+      0 1px 0 var(--edge-dark),
+      0 2px 3px -1px var(--edge-ambient);
+    transition: box-shadow var(--motion-instant), transform var(--motion-instant),
+      background-color var(--motion-instant), border-color var(--motion-instant),
+      color var(--motion-instant);
+  }
+  .raise:hover:not(:disabled):not([aria-disabled="true"]),
+  .raise[data-force~="hover"] {
+    box-shadow:
+      inset 0 1px 0 var(--edge-light),
+      0 1px 0 var(--edge-dark),
+      0 3px 6px -2px var(--edge-ambient);
+  }
+  /* Pressed: the lip is gone and the face sits a pixel lower. */
+  .raise:active:not(:disabled):not([aria-disabled="true"]),
+  .raise[data-force~="active"] {
+    transform: translateY(1px);
+    box-shadow: inset 0 1px 2px var(--edge-dark);
+  }
+  /* Disabled reads as already pressed rather than as a hover state with the lights off. */
+  .raise:disabled,
+  .raise[aria-disabled="true"] {
+    transform: translateY(1px);
+    box-shadow: inset 0 1px 2px var(--edge-dark);
+  }
+  /* Ghost has no face to lift, so it only sinks when pressed. */
+  .raise-flat {
+    transition: box-shadow var(--motion-instant), transform var(--motion-instant),
+      background-color var(--motion-instant), color var(--motion-instant);
+  }
+  .raise-flat:active:not(:disabled):not([aria-disabled="true"]),
+  .raise-flat[data-force~="active"] {
+    transform: translateY(1px);
+    box-shadow: inset 0 1px 2px var(--edge-dark);
+  }
+
+  /*
+   * The composer's row height. With a mouse its buttons are `md` and the pill is slim;
+   * on a touch screen touch-target lifts every button to 44px, and the row has to
+   * follow or the text drops out of line with them. One variable, read by the textarea
+   * and the recording wave alike.
+   */
+  .composer-row {
+    --composer-row: var(--control-md);
+    @media (pointer: coarse) {
+      --composer-row: max(var(--control-md), 44px);
+    }
+  }
+  [data-coarse] .composer-row {
+    --composer-row: max(var(--control-md), 44px);
+  }
+
+  /* Controls take their height from the density scale, never a literal. */
+  .control-sm { height: var(--control-sm); }
+  .control-md { height: var(--control-md); }
+  .control-lg { height: var(--control-lg); }
+  .row-py { padding-block: var(--row-py); }
+  .card-p { padding: var(--card-p); }
+
+  /*
+   * Two ways to be reachable by a thumb.
+   *
+   * `touch-target` grows the control itself, for anything that can afford the room —
+   * rows, buttons, calendar cells. Width as well as height: a square icon button that
+   * is 44 tall and 28 wide is still a miss.
+   *
+   * `tap-target` leaves the drawing alone and reaches out with an invisible pad, for
+   * the small controls inside dense content — the × on a chip, on an attachment — where
+   * growing the box would wreck the layout it sits in. Desktop keeps its compact
+   * density in both cases; nothing changes where there is a mouse.
+   */
+  .touch-target {
+    @media (pointer: coarse) {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+  .tap-target {
+    position: relative;
+  }
+  @media (pointer: coarse) {
+    .tap-target::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+      transform: translate(-50%, -50%);
+    }
+  }
+  /* A simulated phone on the lab page: the monitor has a mouse, so the media query above
+     never fires, and the frame would show desktop hit areas on a phone. `data-coarse`
+     on the frame applies the same rules to everything inside it. */
+  [data-coarse] .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  [data-coarse] .tap-target::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-2) transparent;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── Slider (native range, styled with tokens) ─────────────────────────── */
+input[type="range"].slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 24px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"].slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(var(--color-accent), var(--color-accent)) 0 / var(--slider-fill, 0%) 100% no-repeat,
+    var(--color-fill-3);
+}
+input[type="range"].slider::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-fill-3);
+}
+input[type="range"].slider::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+input[type="range"].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -7px;
+  height: 18px;
+  width: 18px;
+  border-radius: 999px;
+  background: var(--color-knob);
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+  transition: transform 120ms ease;
+}
+input[type="range"].slider::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 999px;
+  background: var(--color-knob);
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+}
+input[type="range"].slider:active::-webkit-slider-thumb { transform: scale(1.15); }
+input[type="range"].slider:disabled { cursor: not-allowed; opacity: 0.4; }
+input[type="range"].slider:focus-visible { outline: none; }
+input[type="range"].slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-accent) 30%, transparent);
+}
+
+/* ── Skeleton shimmer ──────────────────────────────────────────────────── */
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-fill-2);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--color-fill-2), transparent);
+  animation: shimmer 1.6s infinite;
+}
+
+@keyframes indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+/* Hover-revealed affordances must stay visible where there is no hover. */
+@custom-variant hoverable (@media (hover: hover) and (pointer: fine));
+
+/* Interaction states can be forced with `data-force`, so a component's hover, press and
+   focus can be reviewed side by side instead of one at a time under a cursor. */
+@custom-variant hover (&:hover, &[data-force~="hover"]);
+@custom-variant active (&:active, &[data-force~="active"]);
+@custom-variant focus-visible (&:focus-visible, &[data-force~="focus"]);

@@ -2,17 +2,27 @@ name: Publish to npm
 
 run-name: Publish ${{ github.event.release.tag_name || inputs.tag }}
 
-# Runs when a GitHub release is published (by release.yml or by hand). Builds from
-# the tagged commit and publishes @lettuceai/crisp with provenance. Needs the
-# NPM_TOKEN repository secret (an npm automation token with publish rights).
+# Builds from the tagged commit and publishes @lettuceai/crisp with provenance.
+# Needs the NPM_TOKEN repository secret (an npm automation token with publish rights).
 
 on:
+  # Called by release.yml right after it tags — a release created with the workflow
+  # token does not fire the release event, so the call is the reliable path.
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      NPM_TOKEN:
+        required: true
+  # A release cut by hand in the GitHub UI still publishes.
   release:
     types: [published]
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to publish, e.g. v0.1.0"
+        description: "Tag to publish, e.g. v1.0.0"
         required: true
         type: string
 

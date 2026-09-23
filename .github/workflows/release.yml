@@ -2,9 +2,8 @@ name: Release
 
 run-name: Release ${{ inputs.bump }} by @${{ github.actor }}
 
-# Bumps the version, tags it, and opens a GitHub release with notes generated from
-# the commits since the last tag. Publishing to npm follows from the release event
-# (see publish.yml), so a release can also be cut by hand from the GitHub UI.
+# Bumps the version, tags it, opens a GitHub release with notes generated from the
+# commits since the last tag, then publishes to npm through publish.yml.
 
 on:
   workflow_dispatch:
@@ -31,12 +30,15 @@ concurrency:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
     name: Tag and release
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      tag: ${{ steps.bump.outputs.tag }}
     steps:
       - name: Checkout (full history for notes)
         uses: actions/checkout@v4
@@ -91,3 +93,12 @@ jobs:
           FLAGS="--generate-notes"
           case "${{ steps.bump.outputs.version }}" in *-*) FLAGS="$FLAGS --prerelease" ;; esac
           gh release create "${{ steps.bump.outputs.tag }}" --title "${{ steps.bump.outputs.tag }}" $FLAGS
+
+  publish:
+    name: Publish to npm
+    needs: release
+    uses: ./.github/workflows/publish.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -39,3 +39,5 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(function Slider(
     </div>
   );
 });
+
+Slider.displayName = "Slider";

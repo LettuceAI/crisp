@@ -58,7 +58,7 @@ export function TagInput({
       onClick={() => inputRef.current?.focus()}
       className={cn(
         inputSurface,
-        "flex min-h-[var(--control-md)] cursor-text flex-wrap items-center gap-1.5 px-2 py-1.5",
+        "flex min-h-(--control-md) cursor-text flex-wrap items-center gap-1.5 px-2 py-1.5",
         "focus-within:border-accent/50 focus-within:bg-fill-2",
         disabled && "pointer-events-none opacity-40",
         className,

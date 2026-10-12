@@ -31,17 +31,31 @@ const axisProps = {
   tick: { fontSize: 11, fill: "var(--color-fg-3)" },
 } as const;
 
-function ChartTooltip({ active, payload, label, format }: any) {
+interface ChartTooltipPayloadEntry {
+  dataKey?: string | number;
+  name?: string;
+  value?: number;
+  color?: string;
+}
+
+interface ChartTooltipProps {
+  active?: boolean;
+  payload?: readonly ChartTooltipPayloadEntry[];
+  label?: string | number;
+  format?: (value: number) => string;
+}
+
+function ChartTooltip({ active, payload, label, format }: ChartTooltipProps) {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-lg border border-line bg-surface-el px-2.5 py-2 shadow-raised">
       <p className="mb-1 text-2xs text-fg-3">{label}</p>
-      {payload.map((entry: any) => (
+      {payload.map((entry) => (
         <p key={entry.dataKey} className="flex items-center gap-2 text-sm">
           <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: entry.color }} />
           <span className="text-fg-2">{entry.name}</span>
           <span className="ml-auto font-medium tabular-nums text-fg">
-            {format ? format(entry.value) : entry.value}
+            {format && typeof entry.value === "number" ? format(entry.value) : entry.value}
           </span>
         </p>
       ))}

@@ -71,6 +71,8 @@ export const MediaTile = forwardRef<HTMLButtonElement, MediaTileProps>(function 
   );
 });
 
+MediaTile.displayName = "MediaTile";
+
 export function MediaTileSkeleton({ aspect = "square" }: { aspect?: "square" | "portrait" }) {
   return <Skeleton shape="block" className={cn("w-full rounded-xl", aspect === "square" ? "aspect-square" : "aspect-3/4")} />;
 }

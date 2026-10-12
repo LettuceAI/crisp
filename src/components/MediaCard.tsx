@@ -102,6 +102,8 @@ export const MediaCard = forwardRef<HTMLButtonElement, MediaCardProps>(function 
   );
 });
 
+MediaCard.displayName = "MediaCard";
+
 /** Matches MediaCard's aspect and radius exactly, so the grid never reflows on load. */
 export function MediaCardSkeleton() {
   return (

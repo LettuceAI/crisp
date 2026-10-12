@@ -35,6 +35,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   );
 });
 
+Card.displayName = "Card";
+
 /** A clickable card is a button, not a div with onClick. */
 export interface CardButtonProps extends HTMLMotionProps<"button"> {
   selected?: boolean;
@@ -65,3 +67,5 @@ export const CardButton = forwardRef<HTMLButtonElement, CardButtonProps>(functio
     />
   );
 });
+
+CardButton.displayName = "CardButton";

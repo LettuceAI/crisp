@@ -82,3 +82,5 @@ export const SecretInput = forwardRef<HTMLInputElement, SecretInputProps>(functi
     </div>
   );
 });
+
+SecretInput.displayName = "SecretInput";

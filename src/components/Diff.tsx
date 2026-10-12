@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import { cn } from "../lib/cn";
 import { useCrispStrings } from "../lib/strings";
 
-type Op = "same" | "add" | "remove";
-interface Line { op: Op; text: string; a?: number; b?: number }
+export type Op = "same" | "add" | "remove";
+export interface Line { op: Op; text: string; a?: number; b?: number }
 
 /** Longest common subsequence, line-wise. Enough for settings and character fields. */
-function diffLines(before: string, after: string): Line[] {
+export function diffLines(before: string, after: string): Line[] {
   const A = before.split("\n");
   const B = after.split("\n");
   const table: number[][] = Array.from({ length: A.length + 1 }, () => Array.from({ length: B.length + 1 }, () => 0));

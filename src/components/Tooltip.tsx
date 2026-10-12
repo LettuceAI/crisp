@@ -1,4 +1,4 @@
-import { cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
+import { cloneElement, useEffect, useId, useRef, useState, type ReactElement, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
@@ -28,19 +28,32 @@ const motionOffset = { top: { y: 4 }, bottom: { y: -4 }, left: { x: 4 }, right: 
 /** Hover / focus hint. Never the only place a label lives — icon buttons still need `label`. */
 export function Tooltip({ content, placement = "top", delay = 300, disabled = false, className, children }: TooltipProps) {
   const [open, setOpen] = useState(false);
-  const [timer, setTimer] = useState<number | null>(null);
+  const timer = useRef<number | null>(null);
   const id = useId();
 
   const show = () => {
     if (disabled) return;
-    if (timer) window.clearTimeout(timer);
-    setTimer(window.setTimeout(() => setOpen(true), delay));
+    if (timer.current) window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setOpen(true), delay);
   };
   const hide = () => {
-    if (timer) window.clearTimeout(timer);
-    setTimer(null);
+    if (timer.current) window.clearTimeout(timer.current);
+    timer.current = null;
     setOpen(false);
   };
+
+  useEffect(() => () => {
+    if (timer.current) window.clearTimeout(timer.current);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") hide();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   const child = children.props as { onMouseEnter?: (e: unknown) => void; onMouseLeave?: (e: unknown) => void; onFocus?: (e: unknown) => void; onBlur?: (e: unknown) => void };
   const trigger = cloneElement(children, {

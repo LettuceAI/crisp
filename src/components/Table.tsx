@@ -88,8 +88,23 @@ export function Table<Row>({
               rows.map((row) => (
                 <tr
                   key={rowKey(row)}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  role={onRowClick ? "button" : undefined}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
-                  className={cn("border-b border-line last:border-0", onRowClick && "cursor-pointer transition-colors hover:bg-fill")}
+                  onKeyDown={
+                    onRowClick
+                      ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            onRowClick(row);
+                          }
+                        }
+                      : undefined
+                  }
+                  className={cn(
+                    "border-b border-line last:border-0",
+                    onRowClick && "cursor-pointer transition-colors hover:bg-fill focus-visible:outline-none focus-visible:bg-fill-2",
+                  )}
                 >
                   {columns.map((column) => (
                     <td

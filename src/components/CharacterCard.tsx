@@ -102,6 +102,8 @@ export const CharacterCard = forwardRef<HTMLButtonElement, CharacterCardProps>(f
   );
 });
 
+CharacterCard.displayName = "CharacterCard";
+
 export function CharacterCardSkeleton({ variant = "row" }: { variant?: CharacterCardVariant }) {
   if (variant === "banner") return <Skeleton shape="block" className="h-24 w-full rounded-2xl @3xl:h-36 @3xl:rounded-3xl" />;
   return (

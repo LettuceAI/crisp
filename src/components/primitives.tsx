@@ -25,3 +25,5 @@ export const AspectRatio = forwardRef<HTMLDivElement, AspectRatioProps>(function
 ) {
   return <div ref={ref} className={cn("relative w-full overflow-hidden", className)} style={{ aspectRatio: ratio, ...style }} {...rest} />;
 });
+
+AspectRatio.displayName = "AspectRatio";

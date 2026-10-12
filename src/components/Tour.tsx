@@ -95,7 +95,7 @@ export function Tour({ steps, open, onClose, onFinish, finishLabel }: TourProps)
             exit={{ opacity: 0 }}
             transition={m.quick}
             onClick={onClose}
-            className="fixed inset-0 z-[85]"
+            className="fixed inset-0 z-85"
           >
             {rect ? (
               <motion.span
@@ -117,7 +117,7 @@ export function Tour({ steps, open, onClose, onFinish, finishLabel }: TourProps)
             exit={{ opacity: 0, y: 8 }}
             transition={m.quick}
             style={cardStyle}
-            className="fixed z-[86] w-80 max-w-[calc(100vw-24px)] rounded-xl border border-line bg-surface-2 p-4 shadow-raised"
+            className="fixed z-86 w-80 max-w-[calc(100vw-24px)] rounded-xl border border-line bg-surface-2 p-4 shadow-raised"
           >
             <div className="flex items-start gap-2">
               <h2 className="min-w-0 flex-1 text-base font-semibold text-fg">{step.title}</h2>

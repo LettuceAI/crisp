@@ -134,3 +134,5 @@ export const Surface = forwardRef<HTMLElement, SurfaceProps>(function Surface(
     </SurfaceContext.Provider>
   );
 });
+
+Surface.displayName = "Surface";

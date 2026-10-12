@@ -42,6 +42,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   );
 });
 
+Input.displayName = "Input";
+
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   /** Grow with the text instead of scrolling inside a fixed box. `rows` is the minimum. */
   autoGrow?: boolean;
@@ -87,3 +89,5 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
     />
   );
 });
+
+Textarea.displayName = "Textarea";

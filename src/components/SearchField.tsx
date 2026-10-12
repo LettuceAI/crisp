@@ -70,3 +70,5 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
     </div>
   );
 });
+
+SearchField.displayName = "SearchField";

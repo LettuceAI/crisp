@@ -52,7 +52,7 @@ export function NavLabel({ children, className }: { children: ReactNode; classNa
     <span
       className={cn(
         "relative min-w-0 flex-1 overflow-hidden whitespace-nowrap text-left transition-opacity",
-        "[mask-image:linear-gradient(to_right,black_calc(100%-14px),transparent)]",
+        "mask-[linear-gradient(to_right,black_calc(100%-14px),transparent)]",
         open ? "opacity-100 duration-200 delay-100" : "opacity-0 duration-100",
         className,
       )}

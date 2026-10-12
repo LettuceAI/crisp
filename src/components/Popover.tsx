@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
+import { getElementRef, mergeRefs } from "../lib/ref";
 
 export type PopoverSide = "top" | "bottom" | "left" | "right";
 export type PopoverAlign = "start" | "center" | "end";
@@ -56,8 +57,9 @@ export function Popover({ open: openProp, onOpenChange, children }: PopoverProps
 export function PopoverTrigger({ children }: { children: ReactElement<Record<string, unknown>> }) {
   const { open, setOpen, id, anchorRef } = usePopover();
   const child = children.props as { onClick?: (e: unknown) => void };
+  const childRef = getElementRef<HTMLElement>(children);
   return cloneElement(children, {
-    ref: anchorRef,
+    ref: mergeRefs(anchorRef, childRef),
     "aria-haspopup": "dialog",
     "aria-expanded": open,
     "aria-controls": open ? id : undefined,
@@ -74,7 +76,8 @@ export function PopoverTrigger({ children }: { children: ReactElement<Record<str
  */
 export function PopoverAnchor({ children }: { children: ReactElement<Record<string, unknown>> }) {
   const { anchorRef } = usePopover();
-  return cloneElement(children, { ref: anchorRef });
+  const childRef = getElementRef<HTMLElement>(children);
+  return cloneElement(children, { ref: mergeRefs(anchorRef, childRef) });
 }
 
 /** Anchors to the trigger and flips to the other side when it would leave the viewport. */
@@ -173,7 +176,7 @@ export function PopoverContent({ side = "bottom", align = "start", offset = 6, m
           exit={{ opacity: 0, scale: 0.97 }}
           transition={m.instant}
           style={{ top: position.top, left: position.left, ...(matchWidth ? { minWidth: position.minWidth } : undefined) }}
-          className={cn("fixed z-[70] rounded-xl border border-line bg-surface-2 p-1 shadow-raised", className)}
+          className={cn("fixed z-70 rounded-xl border border-line bg-surface-2 p-1 shadow-raised", className)}
         >
           {children}
         </motion.div>

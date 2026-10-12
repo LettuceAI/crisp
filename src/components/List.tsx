@@ -102,3 +102,5 @@ export const ListRowButton = forwardRef<HTMLButtonElement, ListRowButtonProps>(f
     </motion.button>
   );
 });
+
+ListRowButton.displayName = "ListRowButton";

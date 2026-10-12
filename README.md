@@ -105,6 +105,28 @@ The provider exposes six presets through `presets`: Midnight, Ink, Vellum, Paper
 
 Text, fill, border, and elevated surface colors are derived from the theme palette. For custom integrations, `themeToVars()` returns the CSS variables and `applyTheme()` applies a theme to an HTML element. The [theme definitions](src/theme/theme.ts) document the available values.
 
+## Translating crisp
+
+Every string crisp renders on its own (aria-labels, default prop text, status lines) lives in one typed object, `CrispStrings`. Wrap the app in `CrispStringsProvider` and pass only the strings you translate; the rest stay English. Entries that need values are functions.
+
+```tsx
+import { CrispStringsProvider } from "@lettuceai/crisp";
+
+<CrispStringsProvider
+  locale="de"
+  strings={{
+    alertDismiss: "Schließen",
+    paginationPage: (page) => `Seite ${page}`,
+  }}
+>
+  <App />
+</CrispStringsProvider>
+```
+
+`locale` is a BCP 47 tag. It drives every `Intl` call, including `DatePicker`, and the format helpers. Props that already take text (`placeholder`, `backLabel`, `emptyMessage`, …) still win over the provider. Without a provider everything is English and `"en"`. `englishStrings` lists every key, and `useCrispStrings()` returns the active `{ strings, locale }` for your own components.
+
+`relativeTime()`, `compactNumber()` and `fileSize()` take an optional trailing `locale`. English keeps its compact house style ("4 min ago", "1.2k", "1.5 MB"); other locales use `Intl.RelativeTimeFormat` and `Intl.NumberFormat`, so they need no extra strings.
+
 ## Utilities
 
 - `cn()` merges conditional class names and resolves Tailwind class conflicts.

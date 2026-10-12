@@ -1,16 +1,31 @@
 import { ThemeProvider } from "@lettuceai/crisp";
+import { Layout } from "./Layout";
+import { ComponentPage } from "./pages/ComponentPage";
+import { ComponentsIndex } from "./pages/ComponentsIndex";
+import { Foundations } from "./pages/Foundations";
+import { GettingStarted } from "./pages/GettingStarted";
+import { Landing } from "./pages/Landing";
+import { NotFound } from "./pages/NotFound";
+import { entries } from "./registry";
 import { Router, useRoute } from "./router";
 
-function Page() {
+function Content() {
   const route = useRoute();
-  return <main id="content">{route || "home"}</main>;
+  if (route === "") return <Landing />;
+  if (route === "getting-started") return <GettingStarted />;
+  if (route === "foundations") return <Foundations />;
+  if (route === "components") return <ComponentsIndex />;
+  const item = route.startsWith("components/") ? entries.find((entry) => `components/${entry.slug}` === route) : undefined;
+  return item ? <ComponentPage item={item} /> : <NotFound />;
 }
 
 export function App({ route }: { route: string }) {
   return (
     <ThemeProvider>
       <Router initial={route}>
-        <Page />
+        <Layout>
+          <Content />
+        </Layout>
       </Router>
     </ThemeProvider>
   );

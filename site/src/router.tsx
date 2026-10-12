@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { metaFor, NOT_FOUND } from "./routes";
 
 export const SITE = "https://www.lettuceai.app";
@@ -18,10 +18,19 @@ export function canonical(route: string) {
   return `${SITE}${toHref(route)}`;
 }
 
-const RouteContext = createContext<string>("");
+interface RouteState {
+  route: string;
+  navigate: (route: string, hash?: string) => void;
+}
+
+const RouteContext = createContext<RouteState>({ route: "", navigate: () => {} });
 
 export function useRoute() {
-  return useContext(RouteContext);
+  return useContext(RouteContext).route;
+}
+
+export function useNavigate() {
+  return useContext(RouteContext).navigate;
 }
 
 function setMeta(selector: string, create: () => HTMLElement, attr: string, value: string) {
@@ -52,6 +61,18 @@ function applyHead(route: string) {
 export function Router({ initial, children }: { initial: string; children: ReactNode }) {
   const [route, setRoute] = useState(initial);
 
+  const navigate = useCallback((next: string, hash = "") => {
+    const path = toHref(next) + hash;
+    if (path !== location.pathname + location.hash) history.pushState(null, "", path);
+    setRoute(next);
+    if (hash) {
+      requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView());
+    } else {
+      window.scrollTo(0, 0);
+      document.getElementById("content")?.focus({ preventScroll: true });
+    }
+  }, []);
+
   useEffect(() => {
     const onPop = () => setRoute(toRoute(location.pathname));
     const onClick = (event: MouseEvent) => {
@@ -62,15 +83,7 @@ export function Router({ initial, children }: { initial: string; children: React
       if (url.origin !== location.origin || !url.pathname.startsWith(BASE)) return;
       if (url.pathname === location.pathname && url.hash) return;
       event.preventDefault();
-      if (url.pathname + url.hash !== location.pathname + location.hash) history.pushState(null, "", url.pathname + url.hash);
-      const next = toRoute(url.pathname);
-      setRoute(next);
-      if (url.hash) {
-        requestAnimationFrame(() => document.getElementById(url.hash.slice(1))?.scrollIntoView());
-      } else {
-        window.scrollTo(0, 0);
-        document.getElementById("content")?.focus({ preventScroll: true });
-      }
+      navigate(toRoute(url.pathname), url.hash);
     };
     window.addEventListener("popstate", onPop);
     document.addEventListener("click", onClick);
@@ -78,12 +91,12 @@ export function Router({ initial, children }: { initial: string; children: React
       window.removeEventListener("popstate", onPop);
       document.removeEventListener("click", onClick);
     };
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     applyHead(route);
   }, [route]);
 
-  const value = useMemo(() => route, [route]);
+  const value = useMemo(() => ({ route, navigate }), [route, navigate]);
   return <RouteContext.Provider value={value}>{children}</RouteContext.Provider>;
 }

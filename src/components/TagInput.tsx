@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useFieldContext } from "./Field";
 import { inputSurface } from "./Input";
+import { useCrispStrings } from "../lib/strings";
 
 export interface TagInputProps {
   value: string[];
@@ -23,8 +24,9 @@ export interface TagInputProps {
  * Enter or a separator commits; Backspace on an empty input removes the last one.
  */
 export function TagInput({
-  value, onChange, placeholder = "Add a tag…", max, separators = [","], disabled, id, className,
+  value, onChange, placeholder, max, separators = [","], disabled, id, className,
 }: TagInputProps) {
+  const { strings: t } = useCrispStrings();
   const field = useFieldContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState("");
@@ -68,7 +70,7 @@ export function TagInput({
           <button
             type="button"
             onClick={(event) => { event.stopPropagation(); onChange(value.filter((t) => t !== tag)); }}
-            aria-label={`Remove ${tag}`}
+            aria-label={t.tagInputRemove(tag)}
             className="tap-target flex h-4 w-4 items-center justify-center rounded-full text-fg-3 transition-colors hover:bg-fill-3 hover:text-fg"
           >
             <X size={12} />
@@ -83,7 +85,7 @@ export function TagInput({
         onChange={(event) => setDraft(event.target.value)}
         onKeyDown={onKeyDown}
         onBlur={() => commit(draft)}
-        placeholder={full ? `Limit of ${max} reached` : value.length ? "" : placeholder}
+        placeholder={full ? t.tagInputLimit(max!) : value.length ? "" : (placeholder ?? t.tagInputPlaceholder)}
         aria-describedby={field?.describedBy}
         className="min-w-24 flex-1 bg-transparent px-1 text-base text-fg outline-none placeholder:text-fg-4"
       />

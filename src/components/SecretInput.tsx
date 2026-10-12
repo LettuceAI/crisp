@@ -5,6 +5,7 @@ import { icon } from "../lib/icon";
 import { useFieldContext } from "./Field";
 import { IconButton } from "./IconButton";
 import { inputSurface } from "./Input";
+import { useCrispStrings } from "../lib/strings";
 
 export type SecretStatus = { state: "idle" } | { state: "checking" } | { state: "ok"; message?: ReactNode } | { state: "error"; message: ReactNode };
 
@@ -26,6 +27,7 @@ export const SecretInput = forwardRef<HTMLInputElement, SecretInputProps>(functi
   { value, onChange, status = { state: "idle" }, paste = true, className, id, disabled, ...rest },
   ref,
 ) {
+  const { strings: t } = useCrispStrings();
   const field = useFieldContext();
   const [shown, setShown] = useState(false);
   const canPaste = paste && typeof navigator !== "undefined" && Boolean(navigator.clipboard?.readText);
@@ -59,12 +61,12 @@ export const SecretInput = forwardRef<HTMLInputElement, SecretInputProps>(functi
         />
         <span className="absolute right-1 top-1/2 flex -translate-y-1/2 items-center gap-0.5">
           {canPaste && !value && (
-            <IconButton label="Paste" size="sm" disabled={disabled} onClick={pasteIn}><ClipboardPaste size={icon.sm} /></IconButton>
+            <IconButton label={t.secretInputPaste} size="sm" disabled={disabled} onClick={pasteIn}><ClipboardPaste size={icon.sm} /></IconButton>
           )}
           {value && (
-            <IconButton label="Clear" size="sm" disabled={disabled} onClick={() => onChange("")}><X size={icon.sm} /></IconButton>
+            <IconButton label={t.secretInputClear} size="sm" disabled={disabled} onClick={() => onChange("")}><X size={icon.sm} /></IconButton>
           )}
-          <IconButton label={shown ? "Hide" : "Show"} size="sm" active={shown} disabled={disabled} onClick={() => setShown((s) => !s)}>
+          <IconButton label={shown ? t.secretInputHide : t.secretInputShow} size="sm" active={shown} disabled={disabled} onClick={() => setShown((s) => !s)}>
             {shown ? <EyeOff size={icon.sm} /> : <Eye size={icon.sm} />}
           </IconButton>
         </span>
@@ -74,7 +76,7 @@ export const SecretInput = forwardRef<HTMLInputElement, SecretInputProps>(functi
           {status.state === "checking" && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />}
           {status.state === "ok" && <Check size={icon.sm} />}
           {status.state === "error" && <X size={icon.sm} />}
-          {status.state === "checking" ? "Checking…" : status.state === "ok" ? (status.message ?? "Connected") : status.message}
+          {status.state === "checking" ? t.secretInputChecking : status.state === "ok" ? (status.message ?? t.secretInputConnected) : status.message}
         </p>
       )}
     </div>

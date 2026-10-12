@@ -11,6 +11,7 @@ import { useModal } from "../lib/useModal";
 import { useCompactLayout } from "../lib/useMediaQuery";
 import { useFrame, usePortalTarget } from "../lib/frame";
 import { IconButton } from "./IconButton";
+import { useCrispStrings } from "../lib/strings";
 
 export type SheetPlacement = "auto" | "bottom" | "side" | "center";
 
@@ -114,6 +115,7 @@ export function Sheet({
   className,
   children,
 }: SheetProps) {
+  const { strings: t } = useCrispStrings();
   const titleId = useId();
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -317,7 +319,7 @@ export function Sheet({
         <div className="flex shrink-0 items-center gap-1">
           {rightAction}
           <IconButton
-            label="Close"
+            label={t.sheetClose}
             shape="round"
             variant="secondary"
             size="sm"

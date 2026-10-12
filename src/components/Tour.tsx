@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "./Button";
 import { Stepper } from "./Stepper";
+import { useCrispStrings } from "../lib/strings";
 
 export interface TourStep {
   /** CSS selector for the element to highlight. Omit for a centred, anchorless step. */
@@ -30,7 +31,8 @@ const PAD = 8;
  * beside it. Replaces a 1,000-line bespoke tour. It scrolls the target into view and
  * traps Escape, so it can always be left.
  */
-export function Tour({ steps, open, onClose, onFinish, finishLabel = "Got it" }: TourProps) {
+export function Tour({ steps, open, onClose, onFinish, finishLabel }: TourProps) {
+  const { strings: t } = useCrispStrings();
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
   const step = steps[index];
@@ -109,7 +111,7 @@ export function Tour({ steps, open, onClose, onFinish, finishLabel = "Got it" }:
 
           <motion.div
             role="dialog"
-            aria-label="Product tour"
+            aria-label={t.tourLabel}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
@@ -122,7 +124,7 @@ export function Tour({ steps, open, onClose, onFinish, finishLabel = "Got it" }:
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Skip tour"
+                aria-label={t.tourSkip}
                 className="-mr-1 -mt-1 rounded-lg p-1.5 text-fg-3 hover:bg-fill-2 hover:text-fg"
               >
                 <X size={14} />
@@ -134,14 +136,14 @@ export function Tour({ steps, open, onClose, onFinish, finishLabel = "Got it" }:
               <Stepper steps={steps.map((s, i) => ({ id: String(i), label: String(s.title) }))} current={index} variant="dots" />
               <span className="flex-1" />
               {index > 0 && (
-                <Button size="sm" variant="ghost" onClick={() => setIndex((i) => i - 1)}>Back</Button>
+                <Button size="sm" variant="ghost" onClick={() => setIndex((i) => i - 1)}>{t.tourBack}</Button>
               )}
               <Button
                 size="sm"
                 variant="primary"
                 onClick={() => (index === steps.length - 1 ? finish() : setIndex((i) => i + 1))}
               >
-                {index === steps.length - 1 ? finishLabel : "Next"}
+                {index === steps.length - 1 ? (finishLabel ?? t.tourFinish) : t.tourNext}
               </Button>
             </div>
           </motion.div>

@@ -3,6 +3,7 @@ import { Search, X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Kbd } from "./Kbd";
 import { Spinner } from "./Spinner";
+import { useCrispStrings } from "../lib/strings";
 
 export interface SearchFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value" | "type" | "size"> {
   value: string;
@@ -18,9 +19,10 @@ export interface SearchFieldProps extends Omit<InputHTMLAttributes<HTMLInputElem
  * page header, the library, discovery and the model browser.
  */
 export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(function SearchField(
-  { value, onChange, loading, shortcut, size = "md", placeholder = "Search", className, ...rest },
+  { value, onChange, loading, shortcut, size = "md", placeholder, className, ...rest },
   ref,
 ) {
+  const { strings: t } = useCrispStrings();
   const inner = useRef<HTMLInputElement>(null);
   return (
     <div className="relative">
@@ -33,7 +35,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
         }}
         type="search"
         value={value}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t.searchFieldPlaceholder}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === "Escape" && value) {
@@ -55,7 +57,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
         <button
           type="button"
           onClick={() => { onChange(""); inner.current?.focus(); }}
-          aria-label="Clear search"
+          aria-label={t.searchFieldClear}
           className="tap-target absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg"
         >
           <X size={14} />

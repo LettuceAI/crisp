@@ -7,15 +7,16 @@ import { Button } from "./Button";
 import { ColorPicker } from "./ColorPicker";
 import { Segmented } from "./Segmented";
 import { Tooltip } from "./Tooltip";
+import { useCrispStrings, type CrispStrings } from "../lib/strings";
 
-const SOURCES: { key: keyof ThemeColors; label: string; hint: string }[] = [
-  { key: "surface", label: "Surface", hint: "The page. Decides light or dark on its own." },
-  { key: "fg", label: "Foreground", hint: "Text, and every fill and line tinted from it." },
-  { key: "accent", label: "Accent", hint: "Actions and selection." },
-  { key: "danger", label: "Danger", hint: "Destructive actions and errors." },
-  { key: "warning", label: "Warning", hint: "Needs attention." },
-  { key: "info", label: "Info", hint: "Neutral notices." },
-  { key: "secondary", label: "Secondary", hint: "Generated and AI-authored things." },
+const sources = (t: CrispStrings): { key: keyof ThemeColors; label: string; hint: string }[] => [
+  { key: "surface", label: t.themeEditorSurface, hint: t.themeEditorSurfaceHint },
+  { key: "fg", label: t.themeEditorForeground, hint: t.themeEditorForegroundHint },
+  { key: "accent", label: t.themeEditorAccent, hint: t.themeEditorAccentHint },
+  { key: "danger", label: t.themeEditorDanger, hint: t.themeEditorDangerHint },
+  { key: "warning", label: t.themeEditorWarning, hint: t.themeEditorWarningHint },
+  { key: "info", label: t.themeEditorInfo, hint: t.themeEditorInfoHint },
+  { key: "secondary", label: t.themeEditorSecondary, hint: t.themeEditorSecondaryHint },
 ];
 
 const DERIVED = [
@@ -35,9 +36,10 @@ const DERIVED = [
 
 /** WCAG 4.5 is the floor for body text; 3 is the floor for large text and UI edges. */
 function ContrastBadge({ ratio, need = 4.5, label }: { ratio: number; need?: number; label: string }) {
+  const { strings: t } = useCrispStrings();
   const pass = ratio >= need;
   return (
-    <Tooltip content={`${label}: ${ratio.toFixed(2)}:1 — needs ${need}:1`}>
+    <Tooltip content={t.themeEditorContrast(label, ratio.toFixed(2), need)}>
       <span
         className={cn(
           "inline-flex h-6 items-center gap-1 rounded-full border px-2 text-2xs font-medium tabular-nums",
@@ -57,6 +59,7 @@ function ContrastBadge({ ratio, need = 4.5, label }: { ratio: number; need?: num
  * is the app.
  */
 export function ThemeEditor({ className }: { className?: string }) {
+  const { strings: t } = useCrispStrings();
   const { theme, presets, setTheme, setColor, setRadius, setDensity, reset, isCustom } = useTheme();
   const { surface, fg, accent } = theme.colors;
 
@@ -76,7 +79,7 @@ export function ThemeEditor({ className }: { className?: string }) {
     <div className={cn("space-y-6", className)}>
       <div className="flex flex-wrap items-center gap-2">
         <Segmented
-          aria-label="Theme preset"
+          aria-label={t.themeEditorPreset}
           size="sm"
           value={isCustom ? "custom" : theme.id}
           onChange={(id) => {
@@ -85,31 +88,31 @@ export function ThemeEditor({ className }: { className?: string }) {
           }}
           options={[
             ...presets.map((p) => ({ value: p.id, label: p.name })),
-            ...(isCustom ? [{ value: "custom", label: "Custom" }] : []),
+            ...(isCustom ? [{ value: "custom", label: t.themeEditorCustom }] : []),
           ]}
         />
         <span className="flex-1" />
         <Segmented
-          aria-label="Density"
+          aria-label={t.themeEditorDensity}
           size="sm"
           value={theme.density ?? "default"}
           onChange={(d) => setDensity(d as ThemeDensity)}
-          options={[{ value: "default", label: "Default" }, { value: "compact", label: "Compact" }]}
+          options={[{ value: "default", label: t.themeEditorDensityDefault }, { value: "compact", label: t.themeEditorDensityCompact }]}
         />
         <Segmented
-          aria-label="Corner radius"
+          aria-label={t.themeEditorRadius}
           size="sm"
           value={theme.radius ?? "default"}
           onChange={(r) => setRadius(r as ThemeRadius)}
-          options={[{ value: "sharp", label: "Sharp" }, { value: "default", label: "Default" }, { value: "round", label: "Round" }]}
+          options={[{ value: "sharp", label: t.themeEditorRadiusSharp }, { value: "default", label: t.themeEditorRadiusDefault }, { value: "round", label: t.themeEditorRadiusRound }]}
         />
         <Button size="sm" variant="ghost" leading={<RotateCcw size={16} />} onClick={reset}>
-          Reset
+          {t.themeEditorReset}
         </Button>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {SOURCES.map((source) => (
+        {sources(t).map((source) => (
           <div key={source.key} className="space-y-1.5">
             <div className="flex items-baseline justify-between gap-2">
               <label className="text-sm font-medium text-fg-2">{source.label}</label>
@@ -126,15 +129,15 @@ export function ThemeEditor({ className }: { className?: string }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <ContrastBadge ratio={checks.body} label="Body" />
-        <ContrastBadge ratio={checks.muted} need={4.5} label="Muted" />
-        <ContrastBadge ratio={checks.accent} need={3} label="Accent" />
+        <ContrastBadge ratio={checks.body} label={t.themeEditorBody} />
+        <ContrastBadge ratio={checks.muted} need={4.5} label={t.themeEditorMuted} />
+        <ContrastBadge ratio={checks.accent} need={3} label={t.themeEditorAccent} />
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-medium text-fg-2">Derived</p>
+        <p className="text-sm font-medium text-fg-2">{t.themeEditorDerived}</p>
         <p className="text-sm text-fg-3">
-          Computed from the values above. Change the foreground and all eleven move with it.
+          {t.themeEditorDerivedHint}
         </p>
         <div className="flex flex-wrap gap-2 pt-1">
           {DERIVED.map((token) => (

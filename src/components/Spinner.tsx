@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 export interface SpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -24,11 +25,12 @@ export function Spinner({ size = "md", label, className }: SpinnerProps) {
 }
 
 /** Centred spinner with a line of copy, for a panel that has nothing to show yet. */
-export function LoadingState({ label = "Loading…", className }: { label?: string; className?: string }) {
+export function LoadingState({ label, className }: { label?: string; className?: string }) {
+  const { strings: t } = useCrispStrings();
   return (
     <div className={cn("flex flex-col items-center justify-center gap-3 px-6 py-12", className)} role="status">
       <Spinner size="lg" />
-      <p className="text-sm text-fg-3">{label}</p>
+      <p className="text-sm text-fg-3">{label ?? t.loadingState}</p>
     </div>
   );
 }

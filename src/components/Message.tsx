@@ -7,6 +7,7 @@ import { Avatar } from "./Avatar";
 import { useOnSurface } from "./Surface";
 import { Sheet } from "./Sheet";
 import { useLongPress } from "../lib/useLongPress";
+import { useCrispStrings } from "../lib/strings";
 
 export type MessageRole = "user" | "assistant" | "scene" | "system";
 export type MessageState = "idle" | "streaming" | "typing";
@@ -107,8 +108,9 @@ const DEFAULTS: Required<Omit<MessageAppearance, never>> = {
 
 export function Message({
   role, children, author, timestamp, state = "idle", reasoning, attachments,
-  variants, group = "only", pinned, held, menu, menuTitle = "Message", onMenu, appearance, className,
+  variants, group = "only", pinned, held, menu, menuTitle, onMenu, appearance, className,
 }: MessageProps) {
+  const { strings: t } = useCrispStrings();
   const a = { ...DEFAULTS, ...appearance };
   const mine = role === "user";
   /* On a background image the flat theme fill disappears into the art, so bubbles
@@ -148,7 +150,7 @@ export function Message({
   /* Scene and system are narrated rather than spoken, but they are still messages:
      same row, same bubble, same menu and variants. Only the byline changes. */
   const narration = role === "scene" || role === "system";
-  const byline = author?.name ?? (role === "scene" ? "Scene" : role === "system" ? "System" : undefined);
+  const byline = author?.name ?? (role === "scene" ? t.messageScene : role === "system" ? t.messageSystem : undefined);
 
   const showAvatar = a.avatar !== "hidden" && Boolean(author) && !narration && showsAvatar;
   /* An empty meta line still costs the column gap, so only draw it when it holds something. */
@@ -164,9 +166,9 @@ export function Message({
       )}
       {timestamp && <span className="shrink-0 text-2xs tabular-nums text-fg-3">{timestamp}</span>}
       {pinned && (
-        <span className="inline-flex shrink-0 items-center gap-1 text-2xs text-info" aria-label="Pinned">
+        <span className="inline-flex shrink-0 items-center gap-1 text-2xs text-info" aria-label={t.messagePinned}>
           <Pin size={12} />
-          Pinned
+          {t.messagePinned}
         </span>
       )}
     </div>
@@ -322,9 +324,9 @@ export function Message({
               </span>
             )}
             {pinned && (
-              <span className="inline-flex shrink-0 items-center gap-1 text-2xs text-info" aria-label="Pinned">
+              <span className="inline-flex shrink-0 items-center gap-1 text-2xs text-info" aria-label={t.messagePinned}>
                 <Pin size={12} />
-                Pinned
+                {t.messagePinned}
               </span>
             )}
           </div>
@@ -338,7 +340,7 @@ export function Message({
     <>
       {row}
       {/* Portals to the body, so it takes no place in the message flow. */}
-      <Sheet open={menuOpen} onClose={() => setMenuOpen(false)} title={menuTitle} size="sm">
+      <Sheet open={menuOpen} onClose={() => setMenuOpen(false)} title={menuTitle ?? t.messageMenuTitle} size="sm">
         <div className="pb-2">{menu}</div>
       </Sheet>
     </>
@@ -351,7 +353,7 @@ export function Message({
  * a card, and the reasoning is not the reply.
  */
 function Reasoning({
-  label = "Thought process",
+  label,
   align = "start",
   children,
 }: {
@@ -359,6 +361,7 @@ function Reasoning({
   align?: "start" | "end";
   children: ReactNode;
 }) {
+  const { strings: t } = useCrispStrings();
   const [open, setOpen] = useState(false);
   return (
     <div className={cn("flex w-full flex-col", align === "end" ? "items-end" : "items-start")}>
@@ -369,7 +372,7 @@ function Reasoning({
         className="-mx-1 inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 text-sm text-fg-3 transition-colors hover:text-fg-2"
       >
         <Brain size={14} className="shrink-0 text-secondary" />
-        {label}
+        {label ?? t.messageReasoning}
         <ChevronDown size={14} className={cn("shrink-0 transition-transform motion-quick", open && "rotate-180")} />
       </button>
       <AnimatePresence initial={false}>
@@ -397,8 +400,9 @@ function Reasoning({
 }
 
 export function TypingDots({ className }: { className?: string }) {
+  const { strings: t } = useCrispStrings();
   return (
-    <span className={cn("flex items-center gap-1 py-1", className)} role="status" aria-label="Typing">
+    <span className={cn("flex items-center gap-1 py-1", className)} role="status" aria-label={t.messageTyping}>
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}

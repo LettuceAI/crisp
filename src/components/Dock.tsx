@@ -6,13 +6,15 @@ import { motion as m } from "../lib/motion";
 import { Tooltip } from "./Tooltip";
 import { NavBadge } from "./TabBar";
 import type { NavDestination, NavProps } from "./nav";
+import { useCrispStrings } from "../lib/strings";
 
 export interface DockProps<T extends string> extends NavProps<T> {
   edge?: "top" | "bottom";
 }
 
 /** A floating pill of destinations. Desktop and tablet; it does not reach the thumb on a phone. */
-export function Dock<T extends string>({ items, value, onChange, onCreate, createLabel = "Create", edge = "bottom", className }: DockProps<T>) {
+export function Dock<T extends string>({ items, value, onChange, onCreate, createLabel, edge = "bottom", className }: DockProps<T>) {
+  const { strings: t } = useCrispStrings();
   const layoutId = useId();
 
   const renderItem = (item: NavDestination<T>) => {
@@ -43,19 +45,19 @@ export function Dock<T extends string>({ items, value, onChange, onCreate, creat
 
   return (
     <nav
-      aria-label="Primary"
+      aria-label={t.navPrimary}
       className={cn("z-30 flex items-center gap-1 rounded-full border border-line bg-nav/95 p-1.5 shadow-raised backdrop-blur-md", className)}
     >
       {items.map(renderItem)}
       {onCreate && (
         <>
           <span aria-hidden="true" className="mx-0.5 h-6 w-px bg-line" />
-          <Tooltip content={createLabel} placement={edge === "bottom" ? "top" : "bottom"}>
+          <Tooltip content={createLabel ?? t.navCreate} placement={edge === "bottom" ? "top" : "bottom"}>
             <motion.button
               type="button"
               whileTap={{ scale: 0.94 }}
               onClick={onCreate}
-              aria-label={createLabel}
+              aria-label={createLabel ?? t.navCreate}
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent transition-colors hover:bg-accent/90"
             >
               <Plus size={20} strokeWidth={2.5} />

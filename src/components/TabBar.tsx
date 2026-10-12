@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
 import type { NavDestination, NavProps } from "./nav";
+import { useCrispStrings } from "../lib/strings";
 
 
 export interface TabBarProps<T extends string> extends NavProps<T> {
@@ -28,8 +29,9 @@ export function NavBadge({ badge }: { badge: number | boolean }) {
  * the create action is the only accented control on the bar.
  */
 export function TabBar<T extends string>({
-  items, value, onChange, onCreate, createLabel = "Create", showLabels = false, className,
+  items, value, onChange, onCreate, createLabel, showLabels = false, className,
 }: TabBarProps<T>) {
+  const { strings: t } = useCrispStrings();
   const layoutId = useId();
   const middle = Math.ceil(items.length / 2);
 
@@ -60,7 +62,7 @@ export function TabBar<T extends string>({
   };
 
   return (
-    <nav aria-label="Primary" className={cn("border-t border-line bg-nav/95 px-3 pb-[calc(var(--safe-bottom)+8px)] pt-2 backdrop-blur-md", className)}>
+    <nav aria-label={t.navPrimary} className={cn("border-t border-line bg-nav/95 px-3 pb-[calc(var(--safe-bottom)+8px)] pt-2 backdrop-blur-md", className)}>
       <div className="mx-auto flex max-w-md items-center gap-1">
         {items.slice(0, middle).map(renderItem)}
         {onCreate && (
@@ -69,7 +71,7 @@ export function TabBar<T extends string>({
               type="button"
               whileTap={{ scale: 0.94 }}
               onClick={onCreate}
-              aria-label={createLabel}
+              aria-label={createLabel ?? t.navCreate}
               className={cn("flex items-center justify-center rounded-full bg-accent text-on-accent shadow-raised", showLabels ? "h-11 w-11" : "h-10 w-10")}
             >
               <Plus size={20} strokeWidth={2.5} />

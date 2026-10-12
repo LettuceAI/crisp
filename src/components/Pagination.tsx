@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 export interface PaginationProps {
   page: number;
@@ -16,6 +17,7 @@ function range(from: number, to: number) {
 
 /** Numbered paging, for lists where "load more" loses your place — logs, search results. */
 export function Pagination({ page, pageCount, onChange, siblings = 1, className }: PaginationProps) {
+  const { strings: t } = useCrispStrings();
   if (pageCount <= 1) return null;
 
   const start = Math.max(2, page - siblings);
@@ -31,12 +33,12 @@ export function Pagination({ page, pageCount, onChange, siblings = 1, className 
   const step = (delta: number) => onChange(Math.min(pageCount, Math.max(1, page + delta)));
 
   return (
-    <nav aria-label="Pagination" className={cn("flex items-center gap-1", className)}>
+    <nav aria-label={t.paginationLabel} className={cn("flex items-center gap-1", className)}>
       <button
         type="button"
         onClick={() => step(-1)}
         disabled={page <= 1}
-        aria-label="Previous page"
+        aria-label={t.paginationPrevious}
         className="touch-target flex h-8 w-8 items-center justify-center rounded-lg text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg disabled:pointer-events-none disabled:opacity-30"
       >
         <ChevronLeft size={16} />
@@ -52,7 +54,7 @@ export function Pagination({ page, pageCount, onChange, siblings = 1, className 
             type="button"
             onClick={() => onChange(item)}
             aria-current={item === page ? "page" : undefined}
-            aria-label={`Page ${item}`}
+            aria-label={t.paginationPage(item)}
             className={cn(
               "touch-target h-8 min-w-8 rounded-lg px-2 text-sm tabular-nums transition-colors",
               item === page ? "bg-fill-3 font-medium text-fg" : "text-fg-3 hover:bg-fill-2 hover:text-fg",
@@ -66,7 +68,7 @@ export function Pagination({ page, pageCount, onChange, siblings = 1, className 
         type="button"
         onClick={() => step(1)}
         disabled={page >= pageCount}
-        aria-label="Next page"
+        aria-label={t.paginationNext}
         className="touch-target flex h-8 w-8 items-center justify-center rounded-lg text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg disabled:pointer-events-none disabled:opacity-30"
       >
         <ChevronRight size={16} />

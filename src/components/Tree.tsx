@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 export interface TreeNode {
   id: string;
@@ -24,6 +25,7 @@ export interface TreeProps {
  * a file bundle. Rows are buttons, so the whole tree is keyboard-operable.
  */
 export function Tree({ nodes, selectedId, onSelect, defaultExpanded = [], className }: TreeProps) {
+  const { strings: t } = useCrispStrings();
   const [expanded, setExpanded] = useState(() => new Set(defaultExpanded));
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -52,7 +54,7 @@ export function Tree({ nodes, selectedId, onSelect, defaultExpanded = [], classN
             <button
               type="button"
               onClick={() => hasChildren && toggle(node.id)}
-              aria-label={hasChildren ? (open ? "Collapse" : "Expand") : undefined}
+              aria-label={hasChildren ? (open ? t.treeCollapse : t.treeExpand) : undefined}
               tabIndex={hasChildren ? 0 : -1}
               className={cn("touch-target flex h-7 w-5 shrink-0 items-center justify-center text-fg-3", !hasChildren && "invisible")}
             >

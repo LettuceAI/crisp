@@ -141,6 +141,7 @@ export interface CrispStrings {
   selectMenuPlaceholder: string;
   selectMenuClear: string;
   selectMenuEmpty: string;
+  selectMenuSelected: (count: number) => string;
   shelfBack: string;
   shelfForward: string;
   sheetClose: string;
@@ -162,6 +163,7 @@ export interface CrispStrings {
   themeEditorRadiusRound: string;
   themeEditorReset: string;
   themeEditorDerived: string;
+  themeEditorDerivedHint: string;
   themeEditorBody: string;
   themeEditorMuted: string;
   themeEditorAccent: string;
@@ -332,6 +334,7 @@ export const englishStrings: CrispStrings = {
   selectMenuPlaceholder: "Select…",
   selectMenuClear: "Clear selection",
   selectMenuEmpty: "Nothing to choose from",
+  selectMenuSelected: (count) => `${count} selected`,
   shelfBack: "Scroll back",
   shelfForward: "Scroll forward",
   sheetClose: "Close",
@@ -353,6 +356,7 @@ export const englishStrings: CrispStrings = {
   themeEditorRadiusRound: "Round",
   themeEditorReset: "Reset",
   themeEditorDerived: "Derived",
+  themeEditorDerivedHint: "Computed from the values above. Change the foreground and all eleven move with it.",
   themeEditorBody: "Body",
   themeEditorMuted: "Muted",
   themeEditorAccent: "Accent",

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { toast as sonner, Toaster as SonnerToaster } from "sonner";
 import { AlertTriangle, CheckCircle2, Info, Loader2, X, XCircle } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 /**
  * Toasts are sonner underneath, rendered `unstyled` with our own body so they
@@ -63,6 +64,7 @@ function ToastBody({
   secondary?: ToastAction;
   onDismiss: () => void;
 }) {
+  const { strings: t } = useCrispStrings();
   const runAction = (handler: () => void) => (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -106,7 +108,7 @@ function ToastBody({
         type="button"
         onPointerDown={(event) => event.stopPropagation()}
         onClick={(event) => { event.stopPropagation(); onDismiss(); }}
-        aria-label="Dismiss"
+        aria-label={t.toastDismiss}
         className="-mr-1 -mt-1 shrink-0 rounded-lg p-1.5 text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg"
       >
         <X size={14} />

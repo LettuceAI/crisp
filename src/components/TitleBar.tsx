@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Minus, Square, X } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 export interface TitleBarProps {
   title?: ReactNode;
@@ -19,6 +20,7 @@ export interface TitleBarProps {
  * which opt out with `data-tauri-drag-region="false"`.
  */
 export function TitleBar({ title, platform = "linux", onMinimize, onMaximize, onClose, children, className }: TitleBarProps) {
+  const { strings: t } = useCrispStrings();
   const mac = platform === "macos";
   return (
     <div
@@ -34,17 +36,17 @@ export function TitleBar({ title, platform = "linux", onMinimize, onMaximize, on
       {!mac && (onMinimize || onMaximize || onClose) && (
         <div data-tauri-drag-region="false" className="flex shrink-0 items-center">
           {onMinimize && (
-            <button type="button" onClick={onMinimize} aria-label="Minimize" className="flex h-9 w-11 items-center justify-center text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg">
+            <button type="button" onClick={onMinimize} aria-label={t.titleBarMinimize} className="flex h-9 w-11 items-center justify-center text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg">
               <Minus size={14} />
             </button>
           )}
           {onMaximize && (
-            <button type="button" onClick={onMaximize} aria-label="Maximize" className="flex h-9 w-11 items-center justify-center text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg">
+            <button type="button" onClick={onMaximize} aria-label={t.titleBarMaximize} className="flex h-9 w-11 items-center justify-center text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg">
               <Square size={12} />
             </button>
           )}
           {onClose && (
-            <button type="button" onClick={onClose} aria-label="Close window" className="flex h-9 w-11 items-center justify-center text-fg-3 transition-colors hover:bg-danger hover:text-fg">
+            <button type="button" onClick={onClose} aria-label={t.titleBarClose} className="flex h-9 w-11 items-center justify-center text-fg-3 transition-colors hover:bg-danger hover:text-fg">
               <X size={14} />
             </button>
           )}

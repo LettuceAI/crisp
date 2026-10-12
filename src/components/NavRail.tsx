@@ -6,6 +6,7 @@ import { motion as m } from "../lib/motion";
 import { Tooltip } from "./Tooltip";
 import { NavBadge } from "./TabBar";
 import type { NavDestination, NavProps } from "./nav";
+import { useCrispStrings } from "../lib/strings";
 
 export interface NavRailProps<T extends string> extends NavProps<T> {
   side?: "left" | "right";
@@ -74,9 +75,10 @@ export function NavRail<T extends string>(props: NavRailProps<T>) {
 }
 
 function DockedNav<T extends string>({
-  items, value, onChange, onCreate, createLabel = "Create", footerItems, side = "left",
+  items, value, onChange, onCreate, createLabel, footerItems, side = "left",
   variant = "rail", section, onToggle, className,
 }: NavRailProps<T>) {
+  const { strings: t } = useCrispStrings();
   const layoutId = useId();
   const reduced = useReducedMotion();
   const open = variant === "sidebar";
@@ -113,7 +115,7 @@ function DockedNav<T extends string>({
   return (
     <NavExpandedContext.Provider value={open}>
       <motion.nav
-        aria-label="Primary"
+        aria-label={t.navPrimary}
         initial={false}
         animate={{ width }}
         transition={reduced ? { duration: 0 } : m.sidebar}
@@ -124,18 +126,18 @@ function DockedNav<T extends string>({
         )}
       >
         {onCreate && (
-          <Tooltip content={createLabel} placement={tip} disabled={open} className="flex w-full">
+          <Tooltip content={createLabel ?? t.navCreate} placement={tip} disabled={open} className="flex w-full">
             <motion.button
               type="button"
               whileTap={{ scale: 0.97 }}
               onClick={onCreate}
-              aria-label={createLabel}
+              aria-label={createLabel ?? t.navCreate}
               className="flex h-10 w-full shrink-0 items-center overflow-hidden rounded-xl bg-accent text-on-accent transition-colors hover:bg-accent/90"
             >
               <span className={SLOT}>
                 <Plus size={18} strokeWidth={2.5} />
               </span>
-              <NavLabel className="text-base font-medium">{createLabel}</NavLabel>
+              <NavLabel className="text-base font-medium">{createLabel ?? t.navCreate}</NavLabel>
             </motion.button>
           </Tooltip>
         )}
@@ -166,11 +168,11 @@ function DockedNav<T extends string>({
         {(footerItems?.length || onToggle) && divider}
         {/* The fold sits above the footer: settings is always the last thing in the rail. */}
         {onToggle && (
-          <Tooltip content="Expand sidebar" placement={tip} disabled={open} className="flex w-full">
+          <Tooltip content={t.navExpandSidebar} placement={tip} disabled={open} className="flex w-full">
             <button
               type="button"
               onClick={onToggle}
-              aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+              aria-label={open ? t.navCollapseSidebar : t.navExpandSidebar}
               aria-expanded={open}
               className="flex h-10 w-full shrink-0 items-center overflow-hidden rounded-xl text-fg-3 transition-colors hover:bg-fill hover:text-fg"
             >
@@ -180,7 +182,7 @@ function DockedNav<T extends string>({
                   <PanelLeftClose size={18} className={side === "right" ? "-scale-x-100" : undefined} />
                 </motion.span>
               </span>
-              <NavLabel className="text-base font-medium">Collapse</NavLabel>
+              <NavLabel className="text-base font-medium">{t.navCollapse}</NavLabel>
             </button>
           </Tooltip>
         )}
@@ -191,9 +193,10 @@ function DockedNav<T extends string>({
 }
 
 function FloatingRail<T extends string>({
-  items, value, onChange, onCreate, createLabel = "Create", footerItems, side = "left",
+  items, value, onChange, onCreate, createLabel, footerItems, side = "left",
   variant = "rail", floating = false, align = "start", className,
 }: NavRailProps<T>) {
+  const { strings: t } = useCrispStrings();
   const layoutId = useId();
   const labelled = variant === "sidebar";
 
@@ -241,15 +244,15 @@ function FloatingRail<T extends string>({
         className="flex h-10 w-full items-center gap-2.5 rounded-xl bg-accent px-3 text-base font-medium text-on-accent transition-colors hover:bg-accent/90"
       >
         <Plus size={18} strokeWidth={2.5} />
-        {createLabel}
+        {createLabel ?? t.navCreate}
       </button>
     ) : (
-      <Tooltip content={createLabel} placement={side === "left" ? "right" : "left"}>
+      <Tooltip content={createLabel ?? t.navCreate} placement={side === "left" ? "right" : "left"}>
         <motion.button
           type="button"
           whileTap={{ scale: 0.94 }}
           onClick={onCreate}
-          aria-label={createLabel}
+          aria-label={createLabel ?? t.navCreate}
           className={cn("flex h-11 w-11 shrink-0 items-center justify-center bg-accent text-on-accent transition-colors hover:bg-accent/90", floating ? "rounded-full" : "rounded-xl")}
         >
           <Plus size={20} strokeWidth={2.5} />
@@ -260,7 +263,7 @@ function FloatingRail<T extends string>({
 
   return (
     <nav
-      aria-label="Primary"
+      aria-label={t.navPrimary}
       className={cn(
         "z-30 flex flex-col text-fg",
         labelled ? "w-56 gap-1 p-3" : "w-16 items-center gap-1.5 py-3",

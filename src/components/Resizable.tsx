@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ResizableProps {
   /** Fixed-size pane. */
@@ -23,6 +24,7 @@ export interface ResizableProps {
 export function Resizable({
   panel, children, side = "left", defaultSize = 320, minSize = 200, maxSize = 640, storageKey, className,
 }: ResizableProps) {
+  const { strings: t } = useCrispStrings();
   const [size, setSize] = useState(() => {
     if (!storageKey || typeof localStorage === "undefined") return defaultSize;
     try {
@@ -75,7 +77,7 @@ export function Resizable({
       aria-valuenow={size}
       aria-valuemin={minSize}
       aria-valuemax={maxSize}
-      aria-label="Resize panel"
+      aria-label={t.resizableResize}
       tabIndex={0}
       onPointerDown={() => {
         dragging.current = true;

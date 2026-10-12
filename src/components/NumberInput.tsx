@@ -3,6 +3,7 @@ import { Minus, Plus } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useFieldContext } from "./Field";
 import { inputSurface } from "./Input";
+import { useCrispStrings } from "../lib/strings";
 
 export interface NumberInputProps {
   value: number;
@@ -26,6 +27,7 @@ export interface NumberInputProps {
 export function NumberInput({
   value, onChange, min = -Infinity, max = Infinity, step = 1, precision, suffix, disabled, id, className,
 }: NumberInputProps) {
+  const { strings: t } = useCrispStrings();
   const field = useFieldContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const decimals = precision ?? (String(step).split(".")[1]?.length ?? 0);
@@ -49,7 +51,7 @@ export function NumberInput({
         type="button"
         onClick={() => commit(value - step)}
         disabled={disabled || value <= min}
-        aria-label="Decrease"
+        aria-label={t.numberInputDecrease}
         className="touch-target flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg disabled:pointer-events-none disabled:opacity-30"
       >
         <Minus size={16} />
@@ -71,7 +73,7 @@ export function NumberInput({
         type="button"
         onClick={() => commit(value + step)}
         disabled={disabled || value >= max}
-        aria-label="Increase"
+        aria-label={t.numberInputIncrease}
         className="touch-target flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg disabled:pointer-events-none disabled:opacity-30"
       >
         <Plus size={16} />

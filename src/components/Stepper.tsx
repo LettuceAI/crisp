@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 export interface Step {
   id: string;
@@ -25,11 +26,12 @@ export interface StepperProps {
  * lorebook generator each grew their own; this is the one.
  */
 export function Stepper({ steps, current, onStepClick, variant = "bar", className }: StepperProps) {
+  const { strings: t } = useCrispStrings();
   const clamped = Math.max(0, Math.min(current, steps.length - 1));
 
   if (variant === "dots") {
     return (
-      <div className={cn("flex items-center gap-1.5", className)} role="group" aria-label={`Step ${clamped + 1} of ${steps.length}`}>
+      <div className={cn("flex items-center gap-1.5", className)} role="group" aria-label={t.stepperProgress(clamped + 1, steps.length)}>
         {steps.map((step, index) => (
           <span
             key={step.id}
@@ -67,7 +69,7 @@ export function Stepper({ steps, current, onStepClick, variant = "bar", classNam
               <Tag
                 {...(reachable ? { type: "button" as const, onClick: () => onStepClick(index) } : {})}
                 aria-current={active ? "step" : undefined}
-                aria-label={reachable ? `Back to ${step.label}` : undefined}
+                aria-label={reachable ? t.stepperBackTo(step.label) : undefined}
                 className={cn(
                   "flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left transition-colors",
                   reachable && "hover:bg-fill-2",

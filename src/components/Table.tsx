@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { cn } from "../lib/cn";
 import { ScrollArea } from "./ScrollArea";
+import { useCrispStrings } from "../lib/strings";
 
 export interface Column<Row> {
   key: string;
@@ -35,6 +36,7 @@ export interface TableProps<Row> {
 export function Table<Row>({
   columns, rows, rowKey, sort, onSortChange, onRowClick, empty, caption, className,
 }: TableProps<Row>) {
+  const { strings: t } = useCrispStrings();
   const toggleSort = (key: string) => {
     if (!onSortChange) return;
     onSortChange({ key, direction: sort?.key === key && sort.direction === "asc" ? "desc" : "asc" });
@@ -79,7 +81,7 @@ export function Table<Row>({
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-3 py-10 text-center text-sm text-fg-3">
-                  {empty ?? "Nothing to show"}
+                  {empty ?? t.tableEmpty}
                 </td>
               </tr>
             ) : (

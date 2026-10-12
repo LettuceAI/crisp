@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from "react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 export type PartitionTone = "accent" | "info" | "secondary" | "warning" | "danger" | "neutral";
 
@@ -55,6 +56,7 @@ const height = { sm: "h-1.5", md: "h-2.5", lg: "h-3.5" };
 export function PartitionBar({
   segments, total, format, labels = "below", minLabelShare = 0.12, size = "md", showRemainder, className, ...aria
 }: PartitionBarProps) {
+  const { strings: t } = useCrispStrings();
   const id = useId();
   const sum = segments.reduce((acc, s) => acc + Math.max(0, s.value), 0);
   const denominator = total ?? sum;
@@ -113,7 +115,7 @@ export function PartitionBar({
           })}
           {showRemainder && remainder > 0 && (
             <div className="min-w-0 text-center" style={{ flexGrow: share(remainder), flexBasis: 0 }}>
-              <p className="truncate text-sm font-medium text-fg-3">Free</p>
+              <p className="truncate text-sm font-medium text-fg-3">{t.partitionBarFree}</p>
               <p className="truncate text-2xs tabular-nums text-fg-3">{format ? format(remainder, share(remainder)) : `${Math.round(share(remainder) * 100)}%`}</p>
             </div>
           )}

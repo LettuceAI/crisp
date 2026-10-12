@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "../lib/cn";
 import { icon } from "../lib/icon";
 import { IconButton } from "./IconButton";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ShelfProps {
   /** One node per item; each is given the same width. */
@@ -21,6 +22,7 @@ export interface ShelfProps {
  * screenshots — anything that is a set laid side by side.
  */
 export function Shelf({ children, itemClassName = "w-40", bleed = true, className, ...aria }: ShelfProps) {
+  const { strings: t } = useCrispStrings();
   const ref = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: false, end: false });
 
@@ -57,10 +59,10 @@ export function Shelf({ children, itemClassName = "w-40", bleed = true, classNam
       </div>
       {/* Arrows only where a finger can't swipe. */}
       <div className="pointer-events-none absolute inset-y-0 left-0 right-0 hidden items-center justify-between [@media(pointer:fine)]:flex">
-        <IconButton label="Scroll back" variant="secondary" shape="round" className={cn("pointer-events-auto -ml-2 shadow-raised transition-opacity", edges.start ? "opacity-0 group-hover/shelf:opacity-100" : "opacity-0")} onClick={() => page(-1)} tabIndex={edges.start ? 0 : -1}>
+        <IconButton label={t.shelfBack} variant="secondary" shape="round" className={cn("pointer-events-auto -ml-2 shadow-raised transition-opacity", edges.start ? "opacity-0 group-hover/shelf:opacity-100" : "opacity-0")} onClick={() => page(-1)} tabIndex={edges.start ? 0 : -1}>
           <ChevronLeft size={icon.lg} />
         </IconButton>
-        <IconButton label="Scroll forward" variant="secondary" shape="round" className={cn("pointer-events-auto -mr-2 shadow-raised transition-opacity", edges.end ? "opacity-0 group-hover/shelf:opacity-100" : "opacity-0")} onClick={() => page(1)} tabIndex={edges.end ? 0 : -1}>
+        <IconButton label={t.shelfForward} variant="secondary" shape="round" className={cn("pointer-events-auto -mr-2 shadow-raised transition-opacity", edges.end ? "opacity-0 group-hover/shelf:opacity-100" : "opacity-0")} onClick={() => page(1)} tabIndex={edges.end ? 0 : -1}>
           <ChevronRight size={icon.lg} />
         </IconButton>
       </div>

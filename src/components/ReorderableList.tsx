@@ -4,6 +4,7 @@ import { GripVertical } from "lucide-react";
 import { cn } from "../lib/cn";
 import { icon } from "../lib/icon";
 import { motion as m } from "../lib/motion";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ReorderableListProps<T> {
   items: readonly T[];
@@ -62,6 +63,7 @@ function Item<T>({
   className?: string;
   children: (item: T, handle: ReactNode, index: number) => ReactNode;
 }) {
+  const { strings: t } = useCrispStrings();
   const controls = useDragControls();
   const reduced = useReducedMotion();
   const onKey = (e: KeyboardEvent) => {
@@ -74,7 +76,7 @@ function Item<T>({
   const handle = (
     <button
       type="button"
-      aria-label={`Reorder, item ${index + 1} of ${count}. Alt and arrow keys move it.`}
+      aria-label={t.reorderableHandle(index + 1, count)}
       onKeyDown={onKey}
       onPointerDown={(e) => controls.start(e)}
       className="tap-target flex h-8 w-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-fg-4 hover:bg-fill-2 hover:text-fg-2 active:cursor-grabbing"

@@ -28,6 +28,8 @@ export interface CrispStrings {
   carouselPrevious: string;
   carouselNext: string;
   chipRemove: string;
+  citationSource: (title: string) => string;
+  citationVisit: string;
   colorPickerCurrent: (value: string) => string;
   colorPickerPick: string;
   colorPickerHex: string;
@@ -92,6 +94,11 @@ export interface CrispStrings {
   dropzoneIdle: string;
   errorStateTitle: string;
   errorStateRetry: string;
+  feedbackGood: string;
+  feedbackBad: string;
+  feedbackCopy: string;
+  feedbackCopied: string;
+  feedbackRetry: string;
   formSave: string;
   formCancel: string;
   formUnsaved: string;
@@ -124,11 +131,13 @@ export interface CrispStrings {
   navExpandSidebar: string;
   numberInputDecrease: string;
   numberInputIncrease: string;
+  otpDigit: (index: number, total: number) => string;
   paginationLabel: string;
   paginationPrevious: string;
   paginationNext: string;
   paginationPage: (page: number) => string;
   partitionBarFree: string;
+  promptSuggestionsTitle: string;
   reorderableHandle: (index: number, count: number) => string;
   resizableResize: string;
   searchFieldPlaceholder: string;
@@ -222,6 +231,8 @@ export const englishStrings: CrispStrings = {
   carouselPrevious: "Previous slide",
   carouselNext: "Next slide",
   chipRemove: "Remove",
+  citationSource: (title) => `Source: ${title}`,
+  citationVisit: "Visit source",
   colorPickerCurrent: (value) => `Colour, currently ${value}`,
   colorPickerPick: "Pick a colour",
   colorPickerHex: "Hex value",
@@ -286,6 +297,11 @@ export const englishStrings: CrispStrings = {
   dropzoneIdle: "Drop a file, or click to choose",
   errorStateTitle: "Couldn't load this",
   errorStateRetry: "Try again",
+  feedbackGood: "Good response",
+  feedbackBad: "Bad response",
+  feedbackCopy: "Copy response",
+  feedbackCopied: "Copied",
+  feedbackRetry: "Regenerate response",
   formSave: "Save changes",
   formCancel: "Cancel",
   formUnsaved: "Unsaved changes",
@@ -318,11 +334,13 @@ export const englishStrings: CrispStrings = {
   navExpandSidebar: "Expand sidebar",
   numberInputDecrease: "Decrease",
   numberInputIncrease: "Increase",
+  otpDigit: (index, total) => `Digit ${index} of ${total}`,
   paginationLabel: "Pagination",
   paginationPrevious: "Previous page",
   paginationNext: "Next page",
   paginationPage: (page) => `Page ${page}`,
   partitionBarFree: "Free",
+  promptSuggestionsTitle: "Suggested prompts",
   reorderableHandle: (index, count) => `Reorder, item ${index} of ${count}. Alt and arrow keys move it.`,
   resizableResize: "Resize panel",
   searchFieldPlaceholder: "Search",

@@ -9,6 +9,9 @@ describe("englishStrings", () => {
     expect(englishStrings.confirmCancel).toBe("Cancel");
     expect(englishStrings.confirmConfirm).toBe("Confirm");
     expect(englishStrings.tableEmpty).toBe("Nothing to show");
+    expect(englishStrings.citationVisit).toBe("Visit source");
+    expect(englishStrings.feedbackGood).toBe("Good response");
+    expect(englishStrings.promptSuggestionsTitle).toBe("Suggested prompts");
   });
 
   it("evaluates functional strings with count or parameters correctly", () => {
@@ -18,5 +21,7 @@ describe("englishStrings", () => {
     expect(englishStrings.downloadLeftSeconds(15)).toBe("15s left");
     expect(englishStrings.downloadLeftMinutes(4)).toBe("4 min left");
     expect(englishStrings.paginationPage(3)).toBe("Page 3");
+    expect(englishStrings.citationSource("DeepSeek")).toBe("Source: DeepSeek");
+    expect(englishStrings.otpDigit(2, 6)).toBe("Digit 2 of 6");
   });
 });

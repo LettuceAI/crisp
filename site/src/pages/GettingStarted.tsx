@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Alert, Box, CodeBlock, CrispStringsProvider, Stack, Tab, TabList, TabPanel, Table, Tabs, Text } from "@lettuceai/crisp";
+import { Alert, Box, CrispStringsProvider, Stack, Tab, TabList, TabPanel, Table, Tabs, Text } from "@lettuceai/crisp";
+import { Code } from "../Code";
 import { DocPage, Section } from "./Doc";
 import { toHref } from "../router";
 
@@ -65,7 +66,7 @@ function InstallTabs() {
       </TabList>
       {Object.entries(commands).map(([name, command]) => (
         <TabPanel key={name} value={name} className="pt-3">
-          <CodeBlock code={command} label="Terminal" wrap />
+          <Code lang="sh" code={command} label="Terminal" wrap />
         </TabPanel>
       ))}
     </Tabs>
@@ -97,7 +98,7 @@ export function GettingStarted() {
           <Text variant="secondary" className="max-w-prose">
             Crisp needs a working Tailwind CSS v4 build. Import its stylesheet after Tailwind and add the package to Tailwind's source scanning.
           </Text>
-          <CodeBlock code={css} label="src/index.css" />
+          <Code lang="css" code={css} label="src/index.css" />
           <Text variant="secondary" className="max-w-prose">
             The <Box as="code" className="font-mono text-sm text-fg">@source</Box> path is relative to your stylesheet; the example assumes it lives in <Box as="code" className="font-mono text-sm text-fg">src/</Box>. Crisp supplies tokens and CSS utilities, while your Tailwind build generates the component classes.
           </Text>
@@ -109,11 +110,11 @@ export function GettingStarted() {
           <Text variant="secondary" className="max-w-prose">
             ThemeProvider applies theme variables to the document root and stores the selected theme in localStorage under <Box as="code" className="font-mono text-sm text-fg">crisp.theme</Box>. It restores the saved theme on startup and falls back to Midnight. Pass <Box as="code" className="font-mono text-sm text-fg">initial</Box> to override that starting selection.
           </Text>
-          <CodeBlock code={app} label="App.tsx" />
+          <Code code={app} label="App.tsx" />
           <Text variant="secondary" className="max-w-prose">
             Inside the provider, <Box as="code" className="font-mono text-sm text-fg">useTheme()</Box> changes colors, radius or density. Six presets are available: Midnight, Ink, Vellum, Paper, Slate and Ember. Use the theme menu in the header of this site to try them.
           </Text>
-          <CodeBlock code={theme} label="AccentPicker.tsx" />
+          <Code code={theme} label="AccentPicker.tsx" />
           <Text variant="secondary" className="max-w-prose">
             See <Box as="a" href={toHref("components/theme-provider")} className="text-accent underline underline-offset-2">ThemeProvider</Box> for the full API, and <Box as="a" href={toHref("foundations")} className="text-accent underline underline-offset-2">Foundations</Box> for the tokens it drives.
           </Text>
@@ -124,7 +125,7 @@ export function GettingStarted() {
           <Text variant="secondary" className="max-w-prose">
             Every string Crisp renders on its own (aria-labels, default prop text, status lines) lives in one typed object, CrispStrings. Wrap the app in CrispStringsProvider and pass only the strings you translate; the rest stay English. Entries that need values are functions.
           </Text>
-          <CodeBlock code={strings} label="main.tsx" />
+          <Code code={strings} label="main.tsx" />
           <Text variant="secondary" className="max-w-prose">
             <Box as="code" className="font-mono text-sm text-fg">locale</Box> is a BCP 47 tag. It drives every Intl call, including DatePicker, and the format helpers. Props that already take text (placeholder, backLabel, emptyMessage) still win over the provider. Without a provider everything is English.
           </Text>

@@ -1,5 +1,8 @@
 import { renderToString } from "react-dom/server";
 import { App } from "./App";
+import { undocumentedExports, summaryOf } from "./docs";
+import { hasExample } from "./pages/ComponentPage";
+import { entries } from "./registry";
 import { canonical } from "./router";
 import { metaFor, NOT_FOUND, pages } from "./routes";
 
@@ -22,4 +25,13 @@ export function render(route: string) {
     `<meta name="twitter:card" content="summary" />`,
   ].join("\n    ");
   return { html: renderToString(<App route={route} />), head };
+}
+
+/** Anything that would leave a component undocumented. The build fails if this is not empty. */
+export function problems() {
+  return [
+    ...undocumentedExports().map((name) => `export ${name} is not on any page`),
+    ...entries.filter((item) => !hasExample(item.slug)).map((item) => `${item.name} has no example`),
+    ...entries.filter((item) => !summaryOf(item)).map((item) => `${item.name} has no description`),
+  ];
 }

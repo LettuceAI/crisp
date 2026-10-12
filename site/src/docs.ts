@@ -13,10 +13,10 @@ function descriptionFor(name: string) {
   return docs.symbols[name]?.description || docs.components[name]?.description || "";
 }
 
-/** The lead paragraph of a page: the first exported name's doc comment, else the registry summary. */
+/** The lead paragraph of a page: the page's own export doc comment, else the registry summary. */
 export function summaryOf(item: Entry) {
-  const own = descriptionFor(item.name) || docsOf(item).map(descriptionFor).find(Boolean) || "";
-  return own || item.summary || "";
+  if (item.summary) return item.summary;
+  return docs.symbols[item.name] ? descriptionFor(item.name) : "";
 }
 
 export function apiOf(item: Entry): ApiBlock[] {

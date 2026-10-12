@@ -64,8 +64,27 @@ function inheritedPropNames(program: ts.Program, checker: ts.TypeChecker): Set<s
   return names;
 }
 
+/* Em dashes read as AI filler in running text. The first one in a sentence becomes a colon, the rest commas. */
+function tidy(text: string) {
+  let first = true;
+  return text.replace(/\s*—\s*|[.!?](?=\s)/g, (match) => {
+    if (match.length === 1 && /[.!?]/.test(match)) {
+      first = true;
+      return match;
+    }
+    const out = first ? ": " : ", ";
+    first = false;
+    return out;
+  });
+}
+
+/* JSDoc is hard-wrapped; only blank lines are paragraphs. */
+function unwrap(text: string) {
+  return text.replace(/(?<!\n)\n(?!\n)/g, " ");
+}
+
 function clean(text: string) {
-  return text.replace(/\s*\n\s*/g, " ").trim();
+  return tidy(text.replace(/\s*\n\s*/g, " ").trim());
 }
 
 function typeText(prop: { type: { name: string; value?: unknown; raw?: string } }) {
@@ -129,7 +148,7 @@ export function buildDocs(): DocsData {
   for (const doc of parser.parse(files)) {
     if (!/^[A-Z]/.test(doc.displayName)) continue;
     components[doc.displayName] = {
-      description: doc.description.trim(),
+      description: tidy(unwrap(doc.description.trim())),
       props: Object.values(doc.props)
         .filter((p) => p.name !== "ref")
         .map((p) => ({
@@ -154,7 +173,7 @@ export function buildDocs(): DocsData {
     const symbol = exp.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(exp) : exp;
     const decl = symbol.declarations?.[0];
     if (!decl) continue;
-    const description = ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim();
+    const description = tidy(unwrap(ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim()));
     const type = checker.getTypeOfSymbolAtLocation(symbol, decl);
     const isType = !(symbol.flags & ts.SymbolFlags.Value);
     const signatures = type.getCallSignatures();

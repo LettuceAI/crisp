@@ -1,8 +1,10 @@
 import type { ComponentType } from "react";
-import { Badge, Box, Breadcrumb, Card, CodeBlock, Flex, Stack, Table, Text } from "@lettuceai/crisp";
-import { apiOf, importLine, type ApiBlock } from "../docs";
+import { Badge, Box, Breadcrumb, Card, Flex, Stack, Table, Text } from "@lettuceai/crisp";
+import { apiOf, importLine, summaryOf, type ApiBlock } from "../docs";
 import { groupOf, type Entry } from "../registry";
 import { toHref } from "../router";
+import { Code } from "../Code";
+import { Rich } from "../Rich";
 import { DocPage, Section } from "./Doc";
 
 const demos = import.meta.glob<{ default: ComponentType }>("../examples/*.tsx", { eager: true });
@@ -44,7 +46,7 @@ const columns = [
   {
     key: "description",
     header: "Description",
-    cell: (row: Row) => <Box as="span" className="block min-w-48 whitespace-normal text-sm text-fg-2">{row.description || <Box as="span" className="text-fg-4">-</Box>}</Box>,
+    cell: (row: Row) => <Box as="span" className="block min-w-48 whitespace-normal text-sm text-fg-2">{row.description ? <Rich>{row.description}</Rich> : <Box as="span" className="text-fg-4">-</Box>}</Box>,
   },
 ];
 
@@ -58,7 +60,7 @@ function Api({ block }: { block: ApiBlock }) {
         </Text>
         {block.symbol && block.symbol.kind !== "type" && !block.component && <Badge>{block.symbol.kind}</Badge>}
       </Flex>
-      {block.description && <Text variant="secondary" className="max-w-prose whitespace-pre-line text-sm">{block.description}</Text>}
+      {block.description && <Text variant="secondary" className="max-w-prose whitespace-pre-line text-sm"><Rich>{block.description}</Rich></Text>}
       {block.component ? (
         props.length > 0 ? (
           <Table<Row> caption={`${block.name} props`} columns={columns} rows={props} rowKey={(row) => row.name} />
@@ -66,7 +68,7 @@ function Api({ block }: { block: ApiBlock }) {
           <Text variant="hint">No props of its own.</Text>
         )
       ) : (
-        block.symbol && <CodeBlock code={block.symbol.signature} label="Signature" wrap />
+        block.symbol && <Code code={block.symbol.signature} label="Signature" wrap />
       )}
     </Stack>
   );
@@ -90,17 +92,17 @@ export function ComponentPage({ item }: { item: Entry }) {
           ]}
         />
       }
-      lead={api[0]?.description || item.summary}
+      lead={<Rich>{summaryOf(item)}</Rich>}
     >
       <Section id="import" title="Import">
-        <CodeBlock code={importLine(item)} label="TypeScript" wrap />
+        <Code code={importLine(item)} label="TypeScript" wrap />
       </Section>
       <Section id="example" title="Example">
         <Stack gap={3}>
           <Card padding="none" className="border border-line">
             <Box className="flex min-h-40 flex-wrap items-center justify-center gap-4 overflow-x-auto p-4 md:p-8">{Demo ? <Demo /> : null}</Box>
           </Card>
-          <CodeBlock code={source.trim()} label={`${item.slug}.tsx`} maxHeight={420} />
+          <Code code={source.trim()} label={`${item.slug}.tsx`} maxHeight={420} />
         </Stack>
       </Section>
       <Section id="api" title="API">

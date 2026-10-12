@@ -11,7 +11,6 @@ import { Router, useRoute } from "./router";
 
 function Content() {
   const route = useRoute();
-  if (route === "") return <Landing />;
   if (route === "getting-started") return <GettingStarted />;
   if (route === "foundations") return <Foundations />;
   if (route === "components") return <ComponentsIndex />;
@@ -19,13 +18,21 @@ function Content() {
   return item ? <ComponentPage item={item} /> : <NotFound />;
 }
 
+function Page() {
+  const route = useRoute();
+  if (route === "") return <Landing />;
+  return (
+    <Layout>
+      <Content />
+    </Layout>
+  );
+}
+
 export function App({ route }: { route: string }) {
   return (
     <ThemeProvider>
       <Router initial={route}>
-        <Layout>
-          <Content />
-        </Layout>
+        <Page />
       </Router>
     </ThemeProvider>
   );

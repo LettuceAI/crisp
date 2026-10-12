@@ -25,7 +25,50 @@ function slugOf(name: string) {
 
 type Spec = string | [name: string, ...docs: string[]] | { name: string; docs?: string[]; summary?: string };
 
+const summaries: Record<string, string> = {
+  "Center": "Centers its children on both axes. For empty areas, loaders and badges.",
+  "Container": "A centered column with a maximum width and horizontal padding. Sizes run from sm (640px) to xl (1280px), plus a 65ch reading column.",
+  "Divider": "A line between things, horizontal or vertical, optionally with text set into it.",
+  "Flex": "A flex row or column with gap, alignment and wrapping as props. Reach for Stack when you only need vertical rhythm.",
+  "Grid": "A CSS grid with responsive column counts, or auto-fit columns from a minimum width for card grids that should just flow.",
+  "Card": "A surface for grouped content. Elevation separates it from the page. CardButton is the clickable version and is a real button.",
+  "Button": "The standard action. Five variants from the single high-emphasis primary to ghost and danger, three sizes, a loading state and leading or trailing icons.",
+  "ButtonGroup": "Joins buttons into one attached control. SplitButton pairs a primary action with a menu of alternatives behind a chevron.",
+  "IconButton": "A button with only an icon. It requires a label, which becomes its accessible name.",
+  "Kbd": "A keyboard key cap, for shortcuts shown in text and menus.",
+  "Field": "Wraps one control with its label, hint and error message, and wires the ids so assistive technology reads them together.",
+  "Input": "A text field with optional leading and trailing slots. Textarea is the multi-line version and can grow with its text.",
+  "Checkbox": "A checkbox with an inline label and an indeterminate state for the parent of a mixed list.",
+  "Switch": "An on/off toggle that takes effect immediately. Use a Checkbox when the choice is submitted with a form.",
+  "Slider": "A native range input on Crisp's track, with an optional value readout.",
+  "Segmented": "Picks exactly one of a few peer options. For any number of selections use ToggleGroup; for views of one thing use Tabs.",
+  "Sheet": "The signature overlay: a bottom sheet with drag-to-dismiss, optional resting heights (detents), a header and a footer. Dialog is for short centred modals.",
+  "Confirm": "`await confirm({...})` opens a confirmation from anywhere and resolves true or false. Mount ConfirmHost once at the app root.",
+  "Toast": "Notifications. Mount Toaster once, then call `toast.success()`, `toast.error()` and the others, or `toast.progress()` for long-running work.",
+  "Progress": "How far along something is, as a bar. Omit the value for an indeterminate state. Meter is for a budget being spent.",
+  "Skeleton": "A placeholder shaped like the content that is loading, as text, block or circle. SkeletonRow is a ready-made list row.",
+  "Badge": "A small read-only label with a semantic tone and an optional status dot. Chip is the tappable version.",
+  "Text": "The type roles. Every piece of text uses one of ten variants, from hero to caption, rendered as a fitting element.",
+  "Icon": "A lucide icon at a step on the icon ladder, decorative unless you give it a label.",
+  "List": "Grouped rows for settings and navigation. ListGroup frames them, ListRow shows a value or a control, and ListRowButton is a tappable row with a chevron.",
+  "Accordion": "A set of disclosures that share open state, one at a time or several together.",
+  "Avatar": "A person or character picture that falls back to initials on a tint derived from the name. Five sizes and an accent ring for the active state.",
+  "AvatarGroup": "Overlapping avatars with a +N counter past a maximum.",
+  "Message": "One chat message for users, assistants, scenes and system notes. It handles streaming and typing states, visible reasoning, regeneration variants, grouping into runs and a long-press menu.",
+  "Composer": "The chat message box: an input that grows, attachments, a microphone with a live waveform, and a send button that turns into stop while a reply is coming.",
+  "ThemeProvider": "Applies the active theme to the document and persists it. useTheme changes colors, radius and density.",
+  "cn": "Merges conditional class names and resolves Tailwind conflicts, so a className you pass wins over a component's default. mergeRefs and getElementRef compose refs.",
+  "Format helpers": "relativeTime, compactNumber and fileSize: the numbers a list shows, formatted one way everywhere and aware of the locale.",
+  "Color helpers": "Pure hex helpers for contrast, readability and mixing, plus tintFromName for a stable color per name.",
+  "Media and gesture hooks": "useMediaQuery and useCompactLayout for responsive logic, useLongPress for holds, useModal for focus and scroll locking in overlays, and useImageBrightness for text over images."
+};
+
 function entry(spec: Spec): Entry {
+  const made = make(spec);
+  return { ...made, summary: made.summary ?? summaries[made.name] };
+}
+
+function make(spec: Spec): Entry {
   if (typeof spec === "string") return { name: spec, slug: slugOf(spec) };
   if (Array.isArray(spec)) {
     const [name, ...docs] = spec;
@@ -134,7 +177,7 @@ export const groups: Group[] = [
     "CodeBlock",
     ["Diff", "diffLines"],
     "Highlight",
-    "Icon",
+    ["Icon", "ICON_SIZE"],
     ["List", "ListGroup", "ListRow", "ListRowButton"],
     ["Accordion", "AccordionItem"],
     "Collapsible",

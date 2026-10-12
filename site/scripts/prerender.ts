@@ -6,7 +6,10 @@ process.env.NODE_ENV = "production";
 
 const site = path.resolve(import.meta.dir, "..");
 const dist = path.join(site, "dist");
-const { render, pages } = (await import(pathToFileURL(path.join(site, ".ssr/entry-server.js")).href)) as typeof import("../src/entry-server");
+const { render, pages, problems } = (await import(pathToFileURL(path.join(site, ".ssr/entry-server.js")).href)) as typeof import("../src/entry-server");
+
+const issues = problems();
+if (issues.length) throw new Error(`documentation is incomplete:\n  ${issues.join("\n  ")}`);
 
 const template = await readFile(path.join(dist, "index.html"), "utf8");
 if (!template.includes("<!--app-html-->")) throw new Error("dist/index.html has no <!--app-html--> marker");

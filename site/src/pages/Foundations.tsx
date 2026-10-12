@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion as fm } from "framer-motion";
 import { Search } from "lucide-react";
-import { Box, Button, Card, CodeBlock, Grid, icon, motion, Stack, Text } from "@lettuceai/crisp";
+import { Box, Button, Card, Grid, icon, motion, Stack, Text } from "@lettuceai/crisp";
 import stylesheet from "../../../src/styles.css?raw";
+import { Code } from "../Code";
 import { DocPage, Section } from "./Doc";
 
 const theme = stylesheet.slice(stylesheet.indexOf("@theme"), stylesheet.indexOf("\n}\n", stylesheet.indexOf("@theme")));
@@ -216,7 +217,7 @@ export function Foundations() {
                     <Text variant="caption" className="mt-1 block">{motionRoles[name]}</Text>
                   </Box>
                   <MotionDemo name={name} />
-                  <Box className="min-w-0 flex-1"><CodeBlock code={JSON.stringify(motion[name], (_key, value) => (value === Infinity ? "Infinity" : value))} wrap maxHeight={80} /></Box>
+                  <Box className="min-w-0 flex-1"><Code lang="json" code={JSON.stringify(motion[name], (_key, value) => (value === Infinity ? "Infinity" : value))} wrap maxHeight={80} /></Box>
                 </Box>
               ))}
             </Stack>

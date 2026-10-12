@@ -90,7 +90,7 @@ export function ConfirmHost() {
         {!options?.message && !options?.warning && (
           <p className="flex items-center gap-2 text-base text-fg-2">
             <AlertTriangle size={16} className="shrink-0 text-warning" />
-            This can't be undone.
+            {t.confirmUndone}
           </p>
         )}
       </div>

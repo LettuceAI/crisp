@@ -58,6 +58,7 @@ export interface CrispStrings {
   confirmTitle: string;
   confirmCancel: string;
   confirmConfirm: string;
+  confirmUndone: string;
   copyButtonCopy: string;
   copyButtonCopied: string;
   datePickerPlaceholder: string;
@@ -251,6 +252,7 @@ export const englishStrings: CrispStrings = {
   confirmTitle: "Are you sure?",
   confirmCancel: "Cancel",
   confirmConfirm: "Confirm",
+  confirmUndone: "This can't be undone.",
   copyButtonCopy: "Copy",
   copyButtonCopied: "Copied",
   datePickerPlaceholder: "Pick a date",

@@ -89,6 +89,7 @@ function SiteFooter() {
 
 export function Layout({ children }: { children: ReactNode }) {
   const route = useRoute();
+  const home = route === "";
   const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => setNavOpen(false), [route]);
@@ -104,7 +105,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </Box>
       <SiteHeader onMenu={() => setNavOpen(true)} />
       <Flex className="mx-auto w-full max-w-360 flex-1">
-        <Box as="aside" className="hidden w-64 shrink-0 border-r border-line md:block">
+        <Box as="aside" className={home ? "hidden" : "hidden w-64 shrink-0 border-r border-line md:block"}>
           <Box className="sticky top-14 h-[calc(100dvh-3.5rem)]">
             <ScrollArea bar className="h-full">
               <SideNav />

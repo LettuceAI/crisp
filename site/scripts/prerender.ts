@@ -2,6 +2,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+process.env.NODE_ENV = "production";
+
 const site = path.resolve(import.meta.dir, "..");
 const dist = path.join(site, "dist");
 const { render, pages } = (await import(pathToFileURL(path.join(site, ".ssr/entry-server.js")).href)) as typeof import("../src/entry-server");

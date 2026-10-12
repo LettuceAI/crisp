@@ -49,7 +49,7 @@ export function StatTile({ label, value, sub, trend, goodDirection = "up", icon,
       <p className="mt-1 truncate text-2xl font-semibold tabular-nums text-fg">
         {value}
       </p>
-      {sub && <p className="mt-0.5 truncate text-sm text-fg-3">{sub}</p>}
+      {sub && <div className="mt-0.5 truncate text-sm text-fg-3">{sub}</div>}
     </div>
   );
 }

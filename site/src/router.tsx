@@ -4,7 +4,7 @@ import { metaFor, NOT_FOUND } from "./routes";
 export const SITE = "https://www.lettuceai.app";
 export const BASE = import.meta.env.BASE_URL;
 
-/** `/crisp/components/button/` becomes `components/button`; the landing page is the empty string. */
+/** `/crisp/components/button/` becomes `components/button`; the root is the empty string. */
 export function toRoute(pathname: string) {
   const rest = pathname.startsWith(BASE) ? pathname.slice(BASE.length) : pathname.replace(/^\//, "");
   return rest.replace(/\/+$/, "").replace(/\/index\.html$/, "");

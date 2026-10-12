@@ -4,35 +4,26 @@ import { ComponentPage } from "./pages/ComponentPage";
 import { ComponentsIndex } from "./pages/ComponentsIndex";
 import { Foundations } from "./pages/Foundations";
 import { GettingStarted } from "./pages/GettingStarted";
-import { Landing } from "./pages/Landing";
 import { NotFound } from "./pages/NotFound";
 import { entries } from "./registry";
 import { Router, useRoute } from "./router";
 
 function Content() {
   const route = useRoute();
-  if (route === "getting-started") return <GettingStarted />;
+  if (route === "" || route === "getting-started") return <GettingStarted />;
   if (route === "foundations") return <Foundations />;
   if (route === "components") return <ComponentsIndex />;
   const item = route.startsWith("components/") ? entries.find((entry) => `components/${entry.slug}` === route) : undefined;
   return item ? <ComponentPage item={item} /> : <NotFound />;
 }
 
-function Page() {
-  const route = useRoute();
-  if (route === "") return <Landing />;
-  return (
-    <Layout>
-      <Content />
-    </Layout>
-  );
-}
-
 export function App({ route }: { route: string }) {
   return (
     <ThemeProvider>
       <Router initial={route}>
-        <Page />
+        <Layout>
+          <Content />
+        </Layout>
       </Router>
     </ThemeProvider>
   );

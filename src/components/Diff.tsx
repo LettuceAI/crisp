@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 type Op = "same" | "add" | "remove";
 interface Line { op: Op; text: string; a?: number; b?: number }
@@ -58,7 +59,10 @@ const opClass: Record<Op, string> = {
  * What changed between two versions. The sync conflict inbox asks people to choose a
  * side without showing them what differs; this is the missing half.
  */
-export function Diff({ before, after, beforeLabel = "Theirs", afterLabel = "Yours", view = "unified", context = 3, className }: DiffProps) {
+export function Diff({ before, after, beforeLabel, afterLabel, view = "unified", context = 3, className }: DiffProps) {
+  const { strings: t } = useCrispStrings();
+  const beforeText = beforeLabel ?? t.diffBefore;
+  const afterText = afterLabel ?? t.diffAfter;
   const lines = useMemo(() => diffLines(before, after), [before, after]);
 
   const visible = useMemo(() => {
@@ -87,7 +91,7 @@ export function Diff({ before, after, beforeLabel = "Theirs", afterLabel = "Your
     <div className={cn("overflow-hidden rounded-xl border border-line", className)}>
       <div className="flex items-center gap-3 border-b border-line bg-fill px-3 py-1.5">
         <span className="min-w-0 flex-1 truncate text-sm text-fg-3">
-          {view === "split" ? `${beforeLabel} → ${afterLabel}` : "Changes"}
+          {view === "split" ? `${beforeText} → ${afterText}` : t.diffChanges}
         </span>
         <span className="shrink-0 text-2xs tabular-nums text-accent">+{added}</span>
         <span className="shrink-0 text-2xs tabular-nums text-danger">−{removed}</span>
@@ -98,7 +102,7 @@ export function Diff({ before, after, beforeLabel = "Theirs", afterLabel = "Your
           {(["remove", "add"] as const).map((side) => (
             <div key={side} className="scrollbar-thin overflow-x-auto">
               <p className="border-b border-line px-3 py-1 text-2xs font-medium text-fg-3">
-                {side === "remove" ? beforeLabel : afterLabel}
+                {side === "remove" ? beforeText : afterText}
               </p>
               {lines.map((line, index) =>
                 line.op === "same" || line.op === side ? (

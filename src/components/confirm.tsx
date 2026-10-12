@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { Button } from "./Button";
 import { Sheet } from "./Sheet";
 import { Alert } from "./Alert";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ConfirmOptions {
   title: ReactNode;
@@ -42,6 +43,7 @@ export function confirm(options: ConfirmOptions): Promise<boolean> {
 
 /** Mount once, at the app root, next to <Toaster />. */
 export function ConfirmHost() {
+  const { strings: t } = useCrispStrings();
   const [request, setRequest] = useState<ConfirmRequest | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -68,14 +70,14 @@ export function ConfirmHost() {
       /* Dismissing without choosing is a "no". */
       onClose={() => close(false)}
       size="sm"
-      title={options?.title ?? "Are you sure?"}
+      title={options?.title ?? t.confirmTitle}
       footer={
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={() => close(false)}>
-            {options?.cancelLabel ?? "Cancel"}
+            {options?.cancelLabel ?? t.confirmCancel}
           </Button>
           <Button variant={options?.destructive ? "danger" : "primary"} onClick={() => close(true)} data-autofocus>
-            {options?.confirmLabel ?? "Confirm"}
+            {options?.confirmLabel ?? t.confirmConfirm}
           </Button>
         </div>
       }

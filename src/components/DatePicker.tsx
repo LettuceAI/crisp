@@ -4,6 +4,7 @@ import { cn } from "../lib/cn";
 import { useFieldContext } from "./Field";
 import { inputSurface } from "./Input";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
+import { useCrispStrings } from "../lib/strings";
 
 function startOfDay(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
 function sameDay(a: Date, b: Date) { return startOfDay(a).getTime() === startOfDay(b).getTime(); }
@@ -20,7 +21,9 @@ export interface CalendarProps {
 }
 
 /** The month grid. Uses Intl for day and month names, so it follows the app's 20 locales. */
-export function Calendar({ value, onChange, min, max, weekStartsOn = 1, locale, className }: CalendarProps) {
+export function Calendar({ value, onChange, min, max, weekStartsOn = 1, locale: localeProp, className }: CalendarProps) {
+  const { strings: t, locale: contextLocale } = useCrispStrings();
+  const locale = localeProp ?? contextLocale;
   const [cursor, setCursor] = useState(() => startOfDay(value ?? new Date()));
   const today = startOfDay(new Date());
 
@@ -54,7 +57,7 @@ export function Calendar({ value, onChange, min, max, weekStartsOn = 1, locale, 
         <button
           type="button"
           onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-          aria-label="Previous month"
+          aria-label={t.datePickerPreviousMonth}
           className="touch-target flex h-7 w-7 items-center justify-center rounded-lg text-fg-3 hover:bg-fill-2 hover:text-fg"
         >
           <ChevronLeft size={16} />
@@ -63,7 +66,7 @@ export function Calendar({ value, onChange, min, max, weekStartsOn = 1, locale, 
         <button
           type="button"
           onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-          aria-label="Next month"
+          aria-label={t.datePickerNextMonth}
           className="touch-target flex h-7 w-7 items-center justify-center rounded-lg text-fg-3 hover:bg-fill-2 hover:text-fg"
         >
           <ChevronRight size={16} />
@@ -116,16 +119,17 @@ export interface DatePickerProps extends Omit<CalendarProps, "className"> {
 
 /** A field that opens a Calendar. The app's DateTimePicker is 323 lines used in one place. */
 export function DatePicker({
-  value, onChange, placeholder = "Pick a date", withTime, disabled, id, className, ...calendar
+  value, onChange, placeholder, withTime, disabled, id, className, ...calendar
 }: DatePickerProps) {
+  const { strings: t, locale } = useCrispStrings();
   const field = useFieldContext();
   const [open, setOpen] = useState(false);
   const label = value
-    ? new Intl.DateTimeFormat(calendar.locale, {
+    ? new Intl.DateTimeFormat(calendar.locale ?? locale, {
         dateStyle: "medium",
         ...(withTime ? { timeStyle: "short" as const } : {}),
       }).format(value)
-    : placeholder;
+    : (placeholder ?? t.datePickerPlaceholder);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -162,7 +166,7 @@ export function DatePicker({
                 next.setHours(h || 0, m || 0, 0, 0);
                 onChange(next);
               }}
-              aria-label="Time"
+              aria-label={t.datePickerTime}
               className="h-9 w-full rounded-lg border border-line bg-fill px-2.5 text-base tabular-nums text-fg outline-none focus:border-accent focus:ring-1 focus:ring-accent/35"
             />
           </div>

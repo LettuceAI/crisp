@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
 import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
 import { IconButton } from "./IconButton";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ViewerImage {
   src: string;
@@ -24,6 +25,7 @@ export interface ImageViewerProps {
  * page, Escape closes, +/- zoom, and a zoomed image pans by drag.
  */
 export function ImageViewer({ images, index, onIndexChange }: ImageViewerProps) {
+  const { strings: t } = useCrispStrings();
   const [zoom, setZoom] = useState(1);
   const open = index !== null;
   const image = open ? images[index] : null;
@@ -76,13 +78,13 @@ export function ImageViewer({ images, index, onIndexChange }: ImageViewerProps) 
           <div className="flex shrink-0 items-center gap-2 p-3">
             <span className="min-w-0 flex-1 truncate text-sm text-white/70">{image.alt}</span>
             <span className="shrink-0 text-sm tabular-nums text-white/50">{index + 1} / {images.length}</span>
-            <IconButton label="Zoom out" shape="round" onClick={() => setZoom((z) => Math.max(1, z - 0.5))} className="text-white/70 hover:text-white">
+            <IconButton label={t.imageViewerZoomOut} shape="round" onClick={() => setZoom((z) => Math.max(1, z - 0.5))} className="text-white/70 hover:text-white">
               <ZoomOut size={18} />
             </IconButton>
-            <IconButton label="Zoom in" shape="round" onClick={() => setZoom((z) => Math.min(4, z + 0.5))} className="text-white/70 hover:text-white">
+            <IconButton label={t.imageViewerZoomIn} shape="round" onClick={() => setZoom((z) => Math.min(4, z + 0.5))} className="text-white/70 hover:text-white">
               <ZoomIn size={18} />
             </IconButton>
-            <IconButton label="Close" shape="round" onClick={() => onIndexChange(null)} className="text-white/70 hover:text-white" data-autofocus>
+            <IconButton label={t.imageViewerClose} shape="round" onClick={() => onIndexChange(null)} className="text-white/70 hover:text-white" data-autofocus>
               <X size={18} />
             </IconButton>
           </div>
@@ -102,10 +104,10 @@ export function ImageViewer({ images, index, onIndexChange }: ImageViewerProps) 
             />
             {images.length > 1 && (
               <>
-                <IconButton label="Previous image" shape="round" onClick={() => step(-1)} disabled={index === 0} className="absolute left-3 text-white/70 hover:text-white">
+                <IconButton label={t.imageViewerPrevious} shape="round" onClick={() => step(-1)} disabled={index === 0} className="absolute left-3 text-white/70 hover:text-white">
                   <ChevronLeft size={20} />
                 </IconButton>
-                <IconButton label="Next image" shape="round" onClick={() => step(1)} disabled={index === images.length - 1} className="absolute right-3 text-white/70 hover:text-white">
+                <IconButton label={t.imageViewerNext} shape="round" onClick={() => step(1)} disabled={index === images.length - 1} className="absolute right-3 text-white/70 hover:text-white">
                   <ChevronRight size={20} />
                 </IconButton>
               </>

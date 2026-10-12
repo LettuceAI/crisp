@@ -5,6 +5,7 @@ import {
 import { cn } from "../lib/cn";
 import { confirm } from "./confirm";
 import { Button } from "./Button";
+import { useCrispStrings } from "../lib/strings";
 
 interface FormContextValue<T> {
   values: T;
@@ -115,7 +116,8 @@ export interface FormActionsProps {
 }
 
 /** Save / cancel, disabled until something actually changed. */
-export function FormActions({ submitLabel = "Save changes", cancelLabel = "Cancel", onCancel, sticky, children }: FormActionsProps) {
+export function FormActions({ submitLabel, cancelLabel, onCancel, sticky, children }: FormActionsProps) {
+  const { strings: t } = useCrispStrings();
   const { dirty, submitting, reset } = useForm();
   return (
     <div
@@ -124,14 +126,14 @@ export function FormActions({ submitLabel = "Save changes", cancelLabel = "Cance
         sticky && "sticky bottom-0 -mx-4 mt-0 bg-surface/90 px-4 pb-[calc(var(--safe-bottom)+12px)] backdrop-blur-md",
       )}
     >
-      {dirty && <span className="text-sm text-fg-3">Unsaved changes</span>}
+      {dirty && <span className="text-sm text-fg-3">{t.formUnsaved}</span>}
       <span className="flex-1" />
       {children}
       <Button type="button" variant="ghost" disabled={!dirty || submitting} onClick={() => { reset(); onCancel?.(); }}>
-        {cancelLabel}
+        {cancelLabel ?? t.formCancel}
       </Button>
       <Button type="submit" variant="primary" disabled={!dirty} loading={submitting}>
-        {submitLabel}
+        {submitLabel ?? t.formSave}
       </Button>
     </div>
   );
@@ -142,14 +144,15 @@ export function FormActions({ submitLabel = "Save changes", cancelLabel = "Cance
  * `const leave = useUnsavedGuard(dirty); if (await leave()) navigate(to);`
  */
 export function useUnsavedGuard(dirty: boolean) {
+  const { strings: t } = useCrispStrings();
   return useCallback(async () => {
     if (!dirty) return true;
     return confirm({
-      title: "Discard your changes?",
-      message: "You've edited this since you last saved.",
-      confirmLabel: "Discard",
-      cancelLabel: "Keep editing",
+      title: t.formDiscardTitle,
+      message: t.formDiscardMessage,
+      confirmLabel: t.formDiscardConfirm,
+      cancelLabel: t.formDiscardCancel,
       destructive: true,
     });
-  }, [dirty]);
+  }, [dirty, t]);
 }

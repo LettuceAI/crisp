@@ -2,6 +2,7 @@ import { useRef, useState, type DragEvent, type ReactNode } from "react";
 import { Upload } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useFieldContext } from "./Field";
+import { useCrispStrings } from "../lib/strings";
 
 export interface DropzoneProps {
   onFiles: (files: File[]) => void;
@@ -26,6 +27,7 @@ export interface DropzoneProps {
 export function Dropzone({
   onFiles, accept, multiple, maxSize, onReject, disabled, children, hint, className,
 }: DropzoneProps) {
+  const { strings: t } = useCrispStrings();
   const field = useFieldContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
@@ -90,7 +92,7 @@ export function Dropzone({
             <Upload size={18} />
           </span>
           <p className="text-base font-medium text-fg">
-            {over ? "Drop to add" : "Drop a file, or click to choose"}
+            {over ? t.dropzoneOver : t.dropzoneIdle}
           </p>
           {hint && <p className="text-sm text-fg-3">{hint}</p>}
         </>

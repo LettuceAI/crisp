@@ -6,6 +6,7 @@ import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
 import { useModal } from "../lib/useModal";
 import { IconButton } from "./IconButton";
+import { useCrispStrings } from "../lib/strings";
 
 export interface DialogProps {
   open: boolean;
@@ -24,6 +25,7 @@ const sizeClass = { sm: "max-w-sm", md: "max-w-md", lg: "max-w-2xl" };
 
 /** Centred modal. Confirmations, short forms, anything that should not feel like a page. */
 export function Dialog({ open, onClose, title, description, footer, size = "md", dismissible = true, className, children }: DialogProps) {
+  const { strings: t } = useCrispStrings();
   const titleId = useId();
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -76,7 +78,7 @@ export function Dialog({ open, onClose, title, description, footer, size = "md",
                   )}
                 </div>
                 {dismissible && (
-                  <IconButton label="Close" shape="round" variant="secondary" size="sm" onClick={onClose} className="-mr-1 -mt-1" data-modal-chrome>
+                  <IconButton label={t.dialogClose} shape="round" variant="secondary" size="sm" onClick={onClose} className="-mr-1 -mt-1" data-modal-chrome>
                     <X size={14} />
                   </IconButton>
                 )}

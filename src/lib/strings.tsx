@@ -42,6 +42,7 @@ export interface CrispStrings {
   composerPlaceholder: string;
   composerMessage: string;
   composerAttachment: string;
+  composerFile: string;
   composerAttachmentRemove: (name: string | undefined) => string;
   composerAddAttachment: string;
   composerCancelRecording: string;
@@ -232,6 +233,7 @@ export const englishStrings: CrispStrings = {
   composerPlaceholder: "Send a message…",
   composerMessage: "Message",
   composerAttachment: "Attachment",
+  composerFile: "File",
   composerAttachmentRemove: (name) => `Remove ${name ?? "attachment"}`,
   composerAddAttachment: "Add attachment",
   composerCancelRecording: "Cancel recording",

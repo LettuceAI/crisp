@@ -3,6 +3,7 @@ import { AlertTriangle, RotateCcw } from "lucide-react";
 import { cn } from "../lib/cn";
 import { icon } from "../lib/icon";
 import { Button } from "./Button";
+import { useCrispStrings } from "../lib/strings";
 
 export interface EmptyStateProps {
   icon?: ReactNode;
@@ -42,7 +43,9 @@ export interface ErrorStateProps {
 }
 
 /** Something failed to load. Says what, and offers the one thing that might fix it. */
-export function ErrorState({ title = "Couldn't load this", description, onRetry, retryLabel = "Try again", size = "md", className }: ErrorStateProps) {
+export function ErrorState({ title: titleProp, description, onRetry, retryLabel, size = "md", className }: ErrorStateProps) {
+  const { strings: t } = useCrispStrings();
+  const title = titleProp ?? t.errorStateTitle;
   return (
     <div className={cn("flex flex-col items-center text-center", size === "md" ? "px-6 py-14" : "px-4 py-8", className)}>
       <div className={cn("mb-4 flex items-center justify-center rounded-2xl border border-danger/25 bg-danger/10 text-danger", size === "md" ? "h-14 w-14" : "h-11 w-11")}>
@@ -50,7 +53,7 @@ export function ErrorState({ title = "Couldn't load this", description, onRetry,
       </div>
       <p className={cn("font-semibold text-fg", size === "md" ? "text-lg" : "text-base")}>{title}</p>
       {description && <p className={cn("mt-1 max-w-xs text-fg-3", size === "md" ? "text-base" : "text-sm")}>{description}</p>}
-      {onRetry && <Button variant="secondary" className="mt-5" leading={<RotateCcw size={icon.sm} />} onClick={onRetry}>{retryLabel}</Button>}
+      {onRetry && <Button variant="secondary" className="mt-5" leading={<RotateCcw size={icon.sm} />} onClick={onRetry}>{retryLabel ?? t.errorStateRetry}</Button>}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
 import { useLongPress } from "../lib/useLongPress";
 import { IconButton } from "./IconButton";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ComposerAttachment {
   id: string;
@@ -54,8 +55,9 @@ type Action = "stop" | "send" | "busy" | "continue";
 
 export function Composer({
   value, onChange, onSend, onStop, onContinue, onSendAsSystem, onAttach, attachments = [], onRemoveAttachment,
-  mic, sending = false, disabled = false, placeholder = "Send a message…", enterSends = true, notice, topSlot, className,
+  mic, sending = false, disabled = false, placeholder, enterSends = true, notice, topSlot, className,
 }: ComposerProps) {
+  const { strings: t } = useCrispStrings();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const hasDraft = value.trim().length > 0;
   const hasContent = hasDraft || attachments.length > 0;
@@ -92,10 +94,10 @@ export function Composer({
     continue: "border border-accent/30 bg-accent/15 text-accent",
   };
   const actionLabel: Record<Action, string> = {
-    stop: "Stop generating",
-    send: "Send message",
-    busy: "Sending",
-    continue: "Let the character continue",
+    stop: t.composerStop,
+    send: t.composerSend,
+    busy: t.composerSending,
+    continue: t.composerContinue,
   };
   const actionIcon: Record<Action, ReactNode> = {
     stop: <Square size={14} fill="currentColor" />,
@@ -121,15 +123,15 @@ export function Composer({
             {attachments.map((attachment) => (
               <div key={attachment.id} className="group relative">
                 {attachment.src ? (
-                  <img src={attachment.src} alt={attachment.name ?? "Attachment"} className="h-14 w-14 rounded-lg border border-line object-cover" />
+                  <img src={attachment.src} alt={attachment.name ?? t.composerAttachment} className="h-14 w-14 rounded-lg border border-line object-cover" />
                 ) : (
-                  <span className="inline-flex h-9 max-w-48 items-center truncate rounded-lg border border-line bg-fill px-3 text-sm text-fg-2">{attachment.name ?? "File"}</span>
+                  <span className="inline-flex h-9 max-w-48 items-center truncate rounded-lg border border-line bg-fill px-3 text-sm text-fg-2">{attachment.name ?? t.composerFile}</span>
                 )}
                 {onRemoveAttachment && (
                   <button
                     type="button"
                     onClick={() => onRemoveAttachment(attachment.id)}
-                    aria-label={`Remove ${attachment.name ?? "attachment"}`}
+                    aria-label={t.composerAttachmentRemove(attachment.name)}
                     className="tap-target absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-surface/80 text-fg backdrop-blur-sm transition-colors hover:bg-danger"
                   >
                     <X size={12} strokeWidth={2.5} />
@@ -142,7 +144,7 @@ export function Composer({
 
         <div className="composer-row flex items-end gap-1 p-1">
           {onAttach && (
-            <IconButton label="Add attachment" shape="round" size="md" onClick={onAttach} disabled={disabled || sending || recording}>
+            <IconButton label={t.composerAddAttachment} shape="round" size="md" onClick={onAttach} disabled={disabled || sending || recording}>
               <Plus size={18} />
             </IconButton>
           )}
@@ -155,10 +157,10 @@ export function Composer({
               value={value}
               onChange={(event) => onChange(event.target.value)}
               onKeyDown={onKeyDown}
-              placeholder={placeholder}
+              placeholder={placeholder ?? t.composerPlaceholder}
               rows={1}
               disabled={disabled || sending}
-              aria-label="Message"
+              aria-label={t.composerMessage}
               /* One line is exactly as tall as the buttons beside it — both read
                  --composer-row — so under items-end the text and the icons share a
                  centre. At 40px against 44px buttons it sat 2px low. */
@@ -169,7 +171,7 @@ export function Composer({
           {mic && (
             recording ? (
               <>
-                <IconButton label="Cancel recording" shape="round" size="md" onClick={mic.onCancel} disabled={mic.transcribing}>
+                <IconButton label={t.composerCancelRecording} shape="round" size="md" onClick={mic.onCancel} disabled={mic.transcribing}>
                   <X size={16} />
                 </IconButton>
                 <motion.button
@@ -177,14 +179,14 @@ export function Composer({
                   whileTap={{ scale: 0.94 }}
                   onClick={mic.onStop}
                   disabled={mic.transcribing}
-                  aria-label={mic.transcribing ? "Transcribing" : "Stop and transcribe"}
+                  aria-label={mic.transcribing ? t.composerTranscribing : t.composerStopAndTranscribe}
                   className="touch-target control-md flex w-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent disabled:opacity-70"
                 >
                   {mic.transcribing ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} strokeWidth={2.5} />}
                 </motion.button>
               </>
             ) : (
-              <IconButton label="Record voice" shape="round" size="md" onClick={mic.onStart} disabled={disabled || sending || mic.disabled}>
+              <IconButton label={t.composerRecordVoice} shape="round" size="md" onClick={mic.onStart} disabled={disabled || sending || mic.disabled}>
                 <Mic size={16} />
               </IconButton>
             )
@@ -196,7 +198,7 @@ export function Composer({
               whileTap={actionDisabled ? undefined : { scale: 0.94 }}
               disabled={actionDisabled}
               aria-label={actionLabel[action]}
-              title={action === "send" && onSendAsSystem ? "Send · hold to send as system message" : actionLabel[action]}
+              title={action === "send" && onSendAsSystem ? t.composerSendAsSystem : actionLabel[action]}
               onClick={longPress.guardClick(runAction)}
               {...longPress.handlers}
               className={cn(
@@ -232,6 +234,7 @@ function formatElapsed(ms: number) {
 
 /** Live waveform while recording. Same sampling as the app; drawn in tokens. */
 export function RecordingWave({ elapsedMs, analyser, frozen = false }: { elapsedMs: number; analyser: AnalyserNode | null; frozen?: boolean }) {
+  const { strings: t } = useCrispStrings();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const samplesRef = useRef<number[]>([]);
@@ -300,7 +303,7 @@ export function RecordingWave({ elapsedMs, analyser, frozen = false }: { elapsed
   }, [analyser, size.w, size.h, frozen]);
 
   return (
-    <div className="flex min-h-[var(--composer-row)] min-w-0 flex-1 items-center gap-2.5 px-2" role="status" aria-live="polite" aria-label={frozen ? "Transcribing" : `Recording, ${formatElapsed(elapsedMs)}`}>
+    <div className="flex min-h-[var(--composer-row)] min-w-0 flex-1 items-center gap-2.5 px-2" role="status" aria-live="polite" aria-label={frozen ? t.composerTranscribing : t.composerRecording(formatElapsed(elapsedMs))}>
       <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
         {!frozen && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger opacity-60" />}
         <span className={cn("relative inline-flex h-2 w-2 rounded-full", frozen ? "bg-fg-3" : "bg-danger")} />

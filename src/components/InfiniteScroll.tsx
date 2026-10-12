@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { cn } from "../lib/cn";
 import { Spinner } from "./Spinner";
+import { useCrispStrings } from "../lib/strings";
 
 export interface InfiniteScrollProps {
   /** Called when the sentinel comes near the viewport. Guard against re-entry yourself. */
@@ -19,6 +20,7 @@ export interface InfiniteScrollProps {
 export function InfiniteScroll({
   onLoadMore, disabled = false, loading = false, endMessage, rootMargin = "600px", className,
 }: InfiniteScrollProps) {
+  const { strings: t } = useCrispStrings();
   const ref = useRef<HTMLDivElement>(null);
   const callback = useRef(onLoadMore);
   callback.current = onLoadMore;
@@ -39,7 +41,7 @@ export function InfiniteScroll({
   return (
     <div className={cn("flex items-center justify-center py-6", className)}>
       <div ref={ref} className="h-px w-px" aria-hidden="true" />
-      {loading && <Spinner label="Loading more" />}
+      {loading && <Spinner label={t.infiniteScrollLoading} />}
       {!loading && disabled && endMessage && <p className="text-sm text-fg-3">{endMessage}</p>}
     </div>
   );

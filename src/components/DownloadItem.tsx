@@ -4,6 +4,8 @@ import { cn } from "../lib/cn";
 import { IconButton } from "./IconButton";
 import { Progress } from "./Progress";
 import { Spinner } from "./Spinner";
+import { fileSize } from "../lib/format";
+import { useCrispStrings, type CrispStrings } from "../lib/strings";
 
 export type DownloadStatus = "queued" | "downloading" | "paused" | "verifying" | "done" | "failed";
 
@@ -28,19 +30,12 @@ export interface DownloadItemProps {
   className?: string;
 }
 
-function bytes(n?: number) {
-  if (n === undefined) return "";
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  const i = n <= 0 ? 0 : Math.min(units.length - 1, Math.floor(Math.log(n) / Math.log(1024)));
-  const value = n / 1024 ** i;
-  return `${value >= 10 || i === 0 ? Math.round(value) : value.toFixed(1)} ${units[i]}`;
-}
-
-function duration(seconds?: number) {
+function duration(t: CrispStrings, locale: string, seconds?: number) {
   if (seconds === undefined || !Number.isFinite(seconds)) return "";
-  if (seconds < 60) return `${Math.round(seconds)}s left`;
-  if (seconds < 3600) return `${Math.round(seconds / 60)} min left`;
-  return `${(seconds / 3600).toFixed(1)} h left`;
+  if (seconds < 60) return t.downloadLeftSeconds(Math.round(seconds));
+  if (seconds < 3600) return t.downloadLeftMinutes(Math.round(seconds / 60));
+  const hours = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(seconds / 3600);
+  return t.downloadLeftHours(hours);
 }
 
 /**
@@ -52,20 +47,22 @@ export function DownloadItem({
   name, detail, status, progress, speed, eta, size, error,
   onPause, onResume, onCancel, onRetry, className,
 }: DownloadItemProps) {
+  const { strings: t, locale } = useCrispStrings();
+  const bytes = (n?: number) => (n === undefined ? "" : fileSize(n, locale));
   const pct = progress === undefined ? undefined : Math.round(progress * 100);
   const done = status === "done";
   const failed = status === "failed";
 
   const line =
-    failed ? error ?? "Download failed"
+    failed ? error ?? t.downloadFailed
     : done ? bytes(size)
-    : status === "queued" ? "Waiting…"
-    : status === "verifying" ? "Verifying…"
-    : status === "paused" ? `Paused${size ? ` · ${bytes((progress ?? 0) * size)} of ${bytes(size)}` : ""}`
+    : status === "queued" ? t.downloadWaiting
+    : status === "verifying" ? t.downloadVerifying
+    : status === "paused" ? `${t.downloadPaused}${size ? ` · ${t.downloadProgress(bytes((progress ?? 0) * size), bytes(size))}` : ""}`
     : [
-        size ? `${bytes((progress ?? 0) * size)} of ${bytes(size)}` : undefined,
-        speed ? `${bytes(speed)}/s` : undefined,
-        duration(eta),
+        size ? t.downloadProgress(bytes((progress ?? 0) * size), bytes(size)) : undefined,
+        speed ? t.downloadSpeed(bytes(speed)) : undefined,
+        duration(t, locale, eta),
       ].filter(Boolean).join(" · ");
 
   return (
@@ -97,16 +94,16 @@ export function DownloadItem({
 
       <div className="flex shrink-0 items-center gap-1">
         {status === "downloading" && onPause && (
-          <IconButton label={`Pause ${name}`} size="sm" onClick={onPause}><Pause size={16} /></IconButton>
+          <IconButton label={t.downloadPause(name)} size="sm" onClick={onPause}><Pause size={16} /></IconButton>
         )}
         {status === "paused" && onResume && (
-          <IconButton label={`Resume ${name}`} size="sm" onClick={onResume}><Play size={16} /></IconButton>
+          <IconButton label={t.downloadResume(name)} size="sm" onClick={onResume}><Play size={16} /></IconButton>
         )}
         {failed && onRetry && (
-          <IconButton label={`Retry ${name}`} size="sm" onClick={onRetry}><Download size={16} /></IconButton>
+          <IconButton label={t.downloadRetry(name)} size="sm" onClick={onRetry}><Download size={16} /></IconButton>
         )}
         {!done && onCancel && (
-          <IconButton label={`Cancel ${name}`} size="sm" onClick={onCancel}><X size={16} /></IconButton>
+          <IconButton label={t.downloadCancel(name)} size="sm" onClick={onCancel}><X size={16} /></IconButton>
         )}
       </div>
     </div>

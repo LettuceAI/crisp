@@ -7,6 +7,8 @@ import { DownloadItem, type DownloadStatus } from "./DownloadItem";
 import { IconButton } from "./IconButton";
 import { Progress } from "./Progress";
 import { Spinner } from "./Spinner";
+import { fileSize } from "../lib/format";
+import { useCrispStrings, type CrispStrings } from "../lib/strings";
 
 export interface DownloadGroupItem {
   id: string;
@@ -37,19 +39,12 @@ export interface MultiItemDownloadCardProps {
   className?: string;
 }
 
-function bytes(n?: number) {
-  if (n === undefined) return "";
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  const i = n <= 0 ? 0 : Math.min(units.length - 1, Math.floor(Math.log(n) / Math.log(1024)));
-  const value = n / 1024 ** i;
-  return `${value >= 10 || i === 0 ? Math.round(value) : value.toFixed(1)} ${units[i]}`;
-}
-
-function duration(seconds?: number) {
+function duration(t: CrispStrings, locale: string, seconds?: number) {
   if (seconds === undefined || !Number.isFinite(seconds) || seconds <= 0) return "";
-  if (seconds < 60) return `${Math.round(seconds)}s left`;
-  if (seconds < 3600) return `${Math.round(seconds / 60)} min left`;
-  return `${(seconds / 3600).toFixed(1)} h left`;
+  if (seconds < 60) return t.downloadLeftSeconds(Math.round(seconds));
+  if (seconds < 3600) return t.downloadLeftMinutes(Math.round(seconds / 60));
+  const hours = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(seconds / 3600);
+  return t.downloadLeftHours(hours);
 }
 
 /**
@@ -65,6 +60,7 @@ export function MultiItemDownloadCard({
   title, detail, items, onPauseAll, onResumeAll, onCancelAll,
   onItemPause, onItemResume, onItemCancel, onItemRetry, defaultExpanded = false, className,
 }: MultiItemDownloadCardProps) {
+  const { strings: t, locale } = useCrispStrings();
   const [open, setOpen] = useState(defaultExpanded);
 
   const summary = useMemo(() => {
@@ -100,19 +96,20 @@ export function MultiItemDownloadCard({
     return { status, progress, total, transferred, speed, eta, knownSizes, doneCount: done.length, failedCount: failed.length };
   }, [items]);
 
+  const bytes = (n?: number) => (n === undefined ? "" : fileSize(n, locale));
   const pct = Math.round(summary.progress * 100);
   const isDone = summary.status === "done";
   const isFailed = summary.status === "failed";
 
   const line = isFailed
-    ? `${summary.failedCount} of ${items.length} failed`
+    ? t.downloadFailedCount(summary.failedCount, items.length)
     : isDone
-      ? `${items.length} files · ${summary.knownSizes ? bytes(summary.total) : ""}`.trim()
+      ? `${t.downloadFileCount(items.length)} · ${summary.knownSizes ? bytes(summary.total) : ""}`.trim()
       : [
-          `${summary.doneCount} of ${items.length} files`,
-          summary.knownSizes ? `${bytes(summary.transferred)} of ${bytes(summary.total)}` : undefined,
-          summary.speed ? `${bytes(summary.speed)}/s` : undefined,
-          duration(summary.eta),
+          t.downloadFilesDone(summary.doneCount, items.length),
+          summary.knownSizes ? t.downloadProgress(bytes(summary.transferred), bytes(summary.total)) : undefined,
+          summary.speed ? t.downloadSpeed(bytes(summary.speed)) : undefined,
+          duration(t, locale, summary.eta),
         ].filter(Boolean).join(" · ");
 
   return (
@@ -143,13 +140,13 @@ export function MultiItemDownloadCard({
 
         <div className="flex shrink-0 items-center gap-1">
           {summary.status === "downloading" && onPauseAll && (
-            <IconButton label={`Pause ${title}`} size="sm" onClick={onPauseAll}><Pause size={16} /></IconButton>
+            <IconButton label={t.downloadPause(title)} size="sm" onClick={onPauseAll}><Pause size={16} /></IconButton>
           )}
           {summary.status === "paused" && onResumeAll && (
-            <IconButton label={`Resume ${title}`} size="sm" onClick={onResumeAll}><Play size={16} /></IconButton>
+            <IconButton label={t.downloadResume(title)} size="sm" onClick={onResumeAll}><Play size={16} /></IconButton>
           )}
           {!isDone && onCancelAll && (
-            <IconButton label={`Cancel ${title}`} size="sm" onClick={onCancelAll}><X size={16} /></IconButton>
+            <IconButton label={t.downloadCancel(title)} size="sm" onClick={onCancelAll}><X size={16} /></IconButton>
           )}
         </div>
       </div>
@@ -161,10 +158,10 @@ export function MultiItemDownloadCard({
         className="flex w-full items-center gap-1.5 border-t border-line px-3 py-2 text-sm text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg-2"
       >
         <ChevronDown size={14} className={cn("shrink-0 transition-transform motion-quick", open && "rotate-180")} />
-        {open ? "Hide files" : `Show ${items.length} files`}
+        {open ? t.downloadHideFiles : t.downloadShowFiles(items.length)}
         {summary.failedCount > 0 && (
           <span className="ml-auto shrink-0 rounded-md bg-danger/12 px-1.5 py-0.5 text-2xs font-medium text-danger">
-            {summary.failedCount} failed
+            {t.downloadFailedBadge(summary.failedCount)}
           </span>
         )}
       </button>

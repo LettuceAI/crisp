@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 export interface CarouselProps {
   /** One node per slide. */
@@ -18,6 +19,7 @@ export interface CarouselProps {
  * image variants.
  */
 export function Carousel({ children, controls = true, className, slideClassName, ...aria }: CarouselProps) {
+  const { strings: t } = useCrispStrings();
   const trackRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const count = children.length;
@@ -56,7 +58,7 @@ export function Carousel({ children, controls = true, className, slideClassName,
             key={i}
             role="group"
             aria-roledescription="slide"
-            aria-label={`${i + 1} of ${count}`}
+            aria-label={t.carouselPosition(i + 1, count)}
             className={cn("w-full shrink-0 snap-center", slideClassName)}
           >
             {slide}
@@ -72,7 +74,7 @@ export function Carousel({ children, controls = true, className, slideClassName,
                 key={i}
                 type="button"
                 onClick={() => scrollTo(i)}
-                aria-label={`Go to slide ${i + 1}`}
+                aria-label={t.carouselGoTo(i + 1)}
                 aria-current={i === index ? "true" : undefined}
                 className={cn("h-1.5 rounded-full transition-all motion-slow", i === index ? "w-5 bg-accent" : "w-1.5 bg-fill-3 hover:bg-line-3")}
               />
@@ -83,7 +85,7 @@ export function Carousel({ children, controls = true, className, slideClassName,
             type="button"
             onClick={() => scrollTo(index - 1)}
             disabled={index === 0}
-            aria-label="Previous slide"
+            aria-label={t.carouselPrevious}
             className="absolute left-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-surface-el/90 text-fg-2 backdrop-blur-md transition-colors hover:text-fg disabled:opacity-0 hoverable:flex"
           >
             <ChevronLeft size={18} />
@@ -92,7 +94,7 @@ export function Carousel({ children, controls = true, className, slideClassName,
             type="button"
             onClick={() => scrollTo(index + 1)}
             disabled={index === count - 1}
-            aria-label="Next slide"
+            aria-label={t.carouselNext}
             className="absolute right-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-surface-el/90 text-fg-2 backdrop-blur-md transition-colors hover:text-fg disabled:opacity-0 hoverable:flex"
           >
             <ChevronRight size={18} />

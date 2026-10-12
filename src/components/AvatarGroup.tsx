@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
 import { Avatar, type AvatarProps } from "./Avatar";
+import { useCrispStrings } from "../lib/strings";
 
 export interface AvatarGroupProps {
   people: readonly { name: string; src?: string | null }[];
@@ -30,6 +31,7 @@ const geometry = {
 } as const;
 
 export function AvatarGroup({ people, max = 4, size = "sm", interactive, overflow, className }: AvatarGroupProps) {
+  const { strings: t } = useCrispStrings();
   const shown = people.slice(0, max);
   const rest = people.length - shown.length;
   const g = geometry[size ?? "sm"];
@@ -42,7 +44,7 @@ export function AvatarGroup({ people, max = 4, size = "sm", interactive, overflo
     <div
       className={cn("flex items-center", className)}
       role="group"
-      aria-label={`${people.length} ${people.length === 1 ? "person" : "people"}`}
+      aria-label={t.avatarGroupPeople(people.length)}
     >
       {shown.map((person, index) => {
         const masked = index < shown.length - 1 || hasTrailing;

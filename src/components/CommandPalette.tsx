@@ -7,6 +7,7 @@ import { motion as m } from "../lib/motion";
 import { Highlight } from "./Highlight";
 import { Kbd } from "./Kbd";
 import { Spinner } from "./Spinner";
+import { useCrispStrings } from "../lib/strings";
 
 export interface Command {
   id: string;
@@ -38,8 +39,9 @@ export interface CommandPaletteProps {
  * It never replaces a visible control; it's a shortcut to ones that exist.
  */
 export function CommandPalette({
-  open, onOpenChange, commands, placeholder = "Search or jump to…", onQueryChange, loading, emptyMessage = "No matches",
+  open, onOpenChange, commands, placeholder, onQueryChange, loading, emptyMessage,
 }: CommandPaletteProps) {
+  const { strings: t } = useCrispStrings();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
@@ -113,7 +115,7 @@ export function CommandPalette({
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label="Command palette"
+            aria-label={t.commandPaletteLabel}
             initial={{ opacity: 0, scale: 0.98, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: -8 }}
@@ -127,16 +129,16 @@ export function CommandPalette({
                 autoFocus
                 value={query}
                 onChange={(event) => { setQuery(event.target.value); onQueryChange?.(event.target.value); }}
-                placeholder={placeholder}
-                aria-label={placeholder}
+                placeholder={placeholder ?? t.commandPalettePlaceholder}
+                aria-label={placeholder ?? t.commandPalettePlaceholder}
                 className="min-w-0 flex-1 bg-transparent text-lg text-fg outline-none placeholder:text-fg-4"
               />
               {loading && <Spinner size="sm" />}
-              <Kbd>Esc</Kbd>
+              <Kbd>{t.commandPaletteEscape}</Kbd>
             </div>
 
             <div ref={listRef} role="listbox" className="scrollbar-thin min-h-0 flex-1 overflow-y-auto p-1.5">
-              {filtered.length === 0 && <p className="px-3 py-10 text-center text-sm text-fg-3">{emptyMessage}</p>}
+              {filtered.length === 0 && <p className="px-3 py-10 text-center text-sm text-fg-3">{emptyMessage ?? t.commandPaletteEmpty}</p>}
               {grouped.map(([group, list]) => (
                 <div key={group || "_"}>
                   {group && <p className="px-2.5 pb-1 pt-2 text-2xs font-medium text-fg-3">{group}</p>}

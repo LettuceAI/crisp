@@ -3,6 +3,7 @@ import { Check, Copy } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Button, type ButtonProps } from "./Button";
 import { IconButton } from "./IconButton";
+import { useCrispStrings } from "../lib/strings";
 
 export interface CopyButtonProps extends Omit<ButtonProps, "children" | "onClick"> {
   value: string;
@@ -16,7 +17,8 @@ export interface CopyButtonProps extends Omit<ButtonProps, "children" | "onClick
  * Copy with a confirmation that lives on the button itself, so the action doesn't need
  * a toast. The app writes this by hand wherever it copies a prompt, an error or an id.
  */
-export function CopyButton({ value, children, label = "Copy", copiedLabel = "Copied", className, ...rest }: CopyButtonProps) {
+export function CopyButton({ value, children, label, copiedLabel, className, ...rest }: CopyButtonProps) {
+  const { strings: t } = useCrispStrings();
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | null>(null);
 
@@ -36,7 +38,7 @@ export function CopyButton({ value, children, label = "Copy", copiedLabel = "Cop
 
   if (!children) {
     return (
-      <IconButton label={copied ? copiedLabel : label} onClick={copy} className={className}>
+      <IconButton label={copied ? (copiedLabel ?? t.copyButtonCopied) : (label ?? t.copyButtonCopy)} onClick={copy} className={className}>
         {copied ? <Check size={16} className="text-accent" /> : <Copy size={16} />}
       </IconButton>
     );
@@ -49,7 +51,7 @@ export function CopyButton({ value, children, label = "Copy", copiedLabel = "Cop
       className={cn(className)}
       {...rest}
     >
-      {copied ? copiedLabel : children}
+      {copied ? (copiedLabel ?? t.copyButtonCopied) : children}
     </Button>
   );
 }

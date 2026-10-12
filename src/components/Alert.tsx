@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Info, X, XCircle } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Badge } from "./Badge";
+import { useCrispStrings } from "../lib/strings";
 
 export type AlertTone = "info" | "success" | "warning" | "danger";
 
@@ -30,6 +31,7 @@ const tone = {
  * Replaces the chat error banner; same information, one type scale.
  */
 export function Alert({ tone: toneKey = "info", title, description, meta, details, action, onDismiss, className }: AlertProps) {
+  const { strings: t } = useCrispStrings();
   const [open, setOpen] = useState(false);
   const { icon: Icon, iconClass, bar } = tone[toneKey];
   return (
@@ -55,7 +57,7 @@ export function Alert({ tone: toneKey = "info", title, description, meta, detail
                   className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg-2"
                 >
                   <ChevronDown size={14} className={cn("transition-transform motion-quick", open && "rotate-180")} />
-                  {open ? "Hide details" : "Show details"}
+                  {open ? t.alertHideDetails : t.alertShowDetails}
                 </button>
               )}
             </div>
@@ -65,7 +67,7 @@ export function Alert({ tone: toneKey = "info", title, description, meta, detail
           )}
         </div>
         {onDismiss && (
-          <button type="button" onClick={onDismiss} aria-label="Dismiss" className="-mr-1 -mt-1 shrink-0 rounded-lg p-1.5 text-fg-3 hover:bg-fill-2 hover:text-fg">
+          <button type="button" onClick={onDismiss} aria-label={t.alertDismiss} className="-mr-1 -mt-1 shrink-0 rounded-lg p-1.5 text-fg-3 hover:bg-fill-2 hover:text-fg">
             <X size={14} />
           </button>
         )}

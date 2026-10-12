@@ -3,6 +3,7 @@ import { ArrowLeft, Search, X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { IconButton } from "./IconButton";
 import { Input } from "./Input";
+import { useCrispStrings } from "../lib/strings";
 
 export interface AppBarProps {
   title: ReactNode;
@@ -33,9 +34,10 @@ export interface AppBarProps {
  * from an icon, because a permanent search field costs a third of a phone's width.
  */
 export function AppBar({
-  title, meta, onBack, backLabel = "Back", searchValue, onSearchChange, searchPlaceholder = "Search",
+  title, meta, onBack, backLabel, searchValue, onSearchChange, searchPlaceholder,
   actions, filters, scrollRef, inset, className,
 }: AppBarProps) {
+  const { strings: t } = useCrispStrings();
   const [condensed, setCondensed] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -58,12 +60,12 @@ export function AppBar({
       ref={searchRef}
       value={searchValue ?? ""}
       onChange={(event) => onSearchChange(event.target.value)}
-      placeholder={searchPlaceholder}
-      aria-label={searchPlaceholder}
+      placeholder={searchPlaceholder ?? t.appBarSearch}
+      aria-label={searchPlaceholder ?? t.appBarSearch}
       leading={<Search size={16} />}
       trailing={
         searchValue ? (
-          <IconButton label="Clear search" size="sm" onClick={() => onSearchChange("")}>
+          <IconButton label={t.appBarClearSearch} size="sm" onClick={() => onSearchChange("")}>
             <X size={14} />
           </IconButton>
         ) : undefined
@@ -86,14 +88,14 @@ export function AppBar({
         {searchOpen && onSearchChange ? (
           <div className="flex items-center gap-2 py-2.5 @xl:hidden">
             <div className="min-w-0 flex-1">{searchField}</div>
-            <IconButton label="Close search" onClick={() => { setSearchOpen(false); onSearchChange(""); }}>
+            <IconButton label={t.appBarCloseSearch} onClick={() => { setSearchOpen(false); onSearchChange(""); }}>
               <X size={18} />
             </IconButton>
           </div>
         ) : (
           <div className={cn("flex items-center gap-2 transition-[padding] motion-quick", condensed ? "py-2" : "py-3 @xl:py-4")}>
             {onBack && (
-              <IconButton label={backLabel} shape="round" onClick={onBack} className="-ml-1 shrink-0">
+              <IconButton label={backLabel ?? t.appBarBack} shape="round" onClick={onBack} className="-ml-1 shrink-0">
                 <ArrowLeft size={18} />
               </IconButton>
             )}
@@ -112,7 +114,7 @@ export function AppBar({
               {onSearchChange && (
                 <>
                   <div className="hidden w-64 @xl:block @3xl:w-80">{searchField}</div>
-                  <IconButton label="Search" className="@xl:hidden" onClick={() => setSearchOpen(true)}>
+                  <IconButton label={t.appBarSearch} className="@xl:hidden" onClick={() => setSearchOpen(true)}>
                     <Search size={18} />
                   </IconButton>
                 </>

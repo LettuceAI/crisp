@@ -2,6 +2,7 @@ import { Fragment, type ReactNode } from "react";
 import { ChevronRight, MoreHorizontal } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Menu, MenuContent, MenuItem, MenuTrigger } from "./Menu";
+import { useCrispStrings } from "../lib/strings";
 
 export interface Crumb {
   label: string;
@@ -57,6 +58,7 @@ function CrumbLink({ crumb, current }: { crumb: Crumb; current: boolean }) {
  * It complements the back button, it does not replace it.
  */
 export function Breadcrumb({ items, maxVisible = 1, className }: BreadcrumbProps) {
+  const { strings: t } = useCrispStrings();
   if (items.length === 0) return null;
 
   const tailCount = Math.max(1, maxVisible);
@@ -70,7 +72,7 @@ export function Breadcrumb({ items, maxVisible = 1, className }: BreadcrumbProps
   );
 
   return (
-    <nav aria-label="Breadcrumb" className={cn("flex min-w-0 items-center gap-1", className)}>
+    <nav aria-label={t.breadcrumbLabel} className={cn("flex min-w-0 items-center gap-1", className)}>
       {head && (
         <>
           <CrumbLink crumb={head} current={false} />
@@ -79,7 +81,7 @@ export function Breadcrumb({ items, maxVisible = 1, className }: BreadcrumbProps
             <MenuTrigger>
               <button
                 type="button"
-                aria-label={`${hidden.length} more levels`}
+                aria-label={t.breadcrumbMore(hidden.length)}
                 className="tap-target flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg"
               >
                 <MoreHorizontal size={14} />

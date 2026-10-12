@@ -3,6 +3,7 @@ import { Check, Pipette } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useFieldContext } from "./Field";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ColorPickerProps {
   value: string;
@@ -32,6 +33,7 @@ function normalise(input: string) {
  * field and a preset row, which is how people actually choose.
  */
 export function ColorPicker({ value, onChange, swatches = DEFAULT_SWATCHES, disabled, id, className }: ColorPickerProps) {
+  const { strings: t } = useCrispStrings();
   const field = useFieldContext();
   const [draft, setDraft] = useState(value);
   const [open, setOpen] = useState(false);
@@ -49,7 +51,7 @@ export function ColorPicker({ value, onChange, swatches = DEFAULT_SWATCHES, disa
           type="button"
           id={id ?? field?.id}
           disabled={disabled}
-          aria-label={`Colour, currently ${value}`}
+          aria-label={t.colorPickerCurrent(value)}
           className={cn(
             "control-md flex items-center gap-2.5 rounded-xl border border-line bg-fill px-2.5 transition-colors hover:border-line-2",
             disabled && "pointer-events-none opacity-40",
@@ -86,7 +88,7 @@ export function ColorPicker({ value, onChange, swatches = DEFAULT_SWATCHES, disa
               type="color"
               value={value}
               onChange={(event) => onChange(event.target.value)}
-              aria-label="Pick a colour"
+              aria-label={t.colorPickerPick}
               className="absolute inset-0 cursor-pointer opacity-0"
             />
           </label>
@@ -95,7 +97,7 @@ export function ColorPicker({ value, onChange, swatches = DEFAULT_SWATCHES, disa
             onChange={(event) => setDraft(event.target.value)}
             onBlur={() => commit(draft)}
             onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); commit(draft); } }}
-            aria-label="Hex value"
+            aria-label={t.colorPickerHex}
             spellCheck={false}
             className="h-9 min-w-0 flex-1 rounded-lg border border-line bg-fill px-2.5 font-mono text-sm uppercase text-fg outline-none focus:border-accent focus:ring-1 focus:ring-accent/35"
           />

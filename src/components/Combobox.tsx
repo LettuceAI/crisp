@@ -5,6 +5,7 @@ import { useFieldContext } from "./Field";
 import { inputSurface } from "./Input";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 import { Spinner } from "./Spinner";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ComboboxOption<T extends string = string> {
   value: T;
@@ -37,9 +38,10 @@ export interface ComboboxProps<T extends string> {
  * 5,000-line HuggingFace browser that a native select can't serve.
  */
 export function Combobox<T extends string>({
-  options, value, onChange, placeholder = "Select…", searchPlaceholder = "Search…",
-  onSearch, loading, emptyMessage = "No matches", clearable, disabled, id, className,
+  options, value, onChange, placeholder, searchPlaceholder,
+  onSearch, loading, emptyMessage, clearable, disabled, id, className,
 }: ComboboxProps<T>) {
+  const { strings: t } = useCrispStrings();
   const field = useFieldContext();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -124,13 +126,13 @@ export function Combobox<T extends string>({
         >
           {selected?.icon && <span className="shrink-0 text-fg-3">{selected.icon}</span>}
           <span className={cn("min-w-0 flex-1 truncate", selected ? "text-fg" : "text-fg-4")}>
-            {selected?.label ?? placeholder}
+            {selected?.label ?? placeholder ?? t.comboboxPlaceholder}
           </span>
           {clearable && selected && (
             <span
               role="button"
               tabIndex={-1}
-              aria-label="Clear"
+              aria-label={t.comboboxClear}
               onClick={(event) => { event.stopPropagation(); onChange(null); }}
               className="tap-target flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-fg-3 hover:bg-fill-2 hover:text-fg"
             >
@@ -149,15 +151,15 @@ export function Combobox<T extends string>({
             value={query}
             onChange={(event) => { setQuery(event.target.value); setActive(0); onSearch?.(event.target.value); }}
             onKeyDown={onKeyDown}
-            placeholder={searchPlaceholder}
-            aria-label={searchPlaceholder}
+            placeholder={searchPlaceholder ?? t.comboboxSearch}
+            aria-label={searchPlaceholder ?? t.comboboxSearch}
             className="min-w-0 flex-1 bg-transparent text-base text-fg outline-none placeholder:text-fg-4"
           />
           {loading && <Spinner size="sm" />}
         </div>
 
         <div ref={listRef} role="listbox" className="scrollbar-thin max-h-64 overflow-y-auto p-1">
-          {flat.length === 0 && <p className="px-2.5 py-6 text-center text-sm text-fg-3">{emptyMessage}</p>}
+          {flat.length === 0 && <p className="px-2.5 py-6 text-center text-sm text-fg-3">{emptyMessage ?? t.comboboxEmpty}</p>}
           {grouped.map(([group, list]) => (
             <div key={group || "_"}>
               {group && <p className="px-2.5 pb-1 pt-2 text-2xs font-medium text-fg-3">{group}</p>}

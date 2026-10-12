@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { AlertTriangle, Info, WifiOff, X, XCircle } from "lucide-react";
 import { cn } from "../lib/cn";
+import { useCrispStrings } from "../lib/strings";
 
 export type BannerTone = "info" | "warning" | "danger" | "offline";
 
@@ -34,6 +35,7 @@ const toneIcon: Record<BannerTone, ReactNode> = {
  * the page. One line only: if it needs a paragraph, it's an Alert.
  */
 export function Banner({ tone = "info", children, action, onDismiss, sticky, className }: BannerProps) {
+  const { strings: t } = useCrispStrings();
   return (
     <div
       role={tone === "danger" ? "alert" : "status"}
@@ -51,7 +53,7 @@ export function Banner({ tone = "info", children, action, onDismiss, sticky, cla
         <button
           type="button"
           onClick={onDismiss}
-          aria-label="Dismiss"
+          aria-label={t.bannerDismiss}
           className="-mr-1 shrink-0 rounded-md p-1 opacity-70 transition-opacity hover:opacity-100"
         >
           <X size={14} />

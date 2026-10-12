@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Button, type ButtonProps } from "./Button";
 import { Menu, MenuContent, MenuTrigger } from "./Menu";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ButtonGroupProps {
   /** Buttons joined into one control — the inner corners are squared off. */
@@ -41,7 +42,8 @@ export interface SplitButtonProps extends Omit<ButtonProps, "children"> {
  * with hold-to-send-as-system — a gesture nobody discovers. On desktop this is the
  * visible version of the same thing.
  */
-export function SplitButton({ children, menu, menuLabel = "More actions", variant = "primary", size = "md", ...rest }: SplitButtonProps) {
+export function SplitButton({ children, menu, menuLabel, variant = "primary", size = "md", ...rest }: SplitButtonProps) {
+  const { strings: t } = useCrispStrings();
   return (
     <div className="inline-flex -space-x-px">
       <Button variant={variant} size={size} className="rounded-r-none" {...rest}>
@@ -49,7 +51,7 @@ export function SplitButton({ children, menu, menuLabel = "More actions", varian
       </Button>
       <Menu>
         <MenuTrigger>
-          <Button variant={variant} size={size} aria-label={menuLabel} className="rounded-l-none px-2">
+          <Button variant={variant} size={size} aria-label={menuLabel ?? t.splitButtonMore} className="rounded-l-none px-2">
             <ChevronDown size={16} />
           </Button>
         </MenuTrigger>

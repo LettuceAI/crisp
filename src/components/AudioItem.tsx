@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { Loader2, Pause, Play } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Badge, type BadgeTone } from "./Badge";
+import { useCrispStrings } from "../lib/strings";
 
 export interface AudioItemProps {
   title: string;
@@ -26,6 +27,7 @@ function formatTime(value: number) {
  * keyboard- and screen-reader-operable — the app's version is a div with onClick.
  */
 export function AudioItem({ title, description, src: srcProp, onLoadSrc, badge, actions, className }: AudioItemProps) {
+  const { strings: t } = useCrispStrings();
   const audioRef = useRef<HTMLAudioElement>(null);
   const wantPlay = useRef(false);
   const [src, setSrc] = useState<string | null>(srcProp ?? null);
@@ -90,7 +92,7 @@ export function AudioItem({ title, description, src: srcProp, onLoadSrc, badge, 
       <button
         type="button"
         onClick={toggle}
-        aria-label={playing ? `Pause ${title}` : `Play ${title}`}
+        aria-label={playing ? t.audioItemPause(title) : t.audioItemPlay(title)}
         className={cn(
           "touch-target flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
           "bg-accent text-on-accent transition-transform motion-instant active:scale-95",
@@ -114,7 +116,7 @@ export function AudioItem({ title, description, src: srcProp, onLoadSrc, badge, 
               step={0.1}
               value={current}
               onChange={(event) => seek(Number(event.target.value))}
-              aria-label={`Seek ${title}`}
+              aria-label={t.audioItemSeek(title)}
               aria-valuetext={`${formatTime(current)} of ${formatTime(duration)}`}
               style={{ ["--slider-fill" as string]: `${fill}%` }}
             />

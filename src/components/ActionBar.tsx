@@ -4,6 +4,7 @@ import { cn } from "../lib/cn";
 import { icon } from "../lib/icon";
 import { useCompactLayout } from "../lib/useMediaQuery";
 import { Button } from "./Button";
+import { useCrispStrings } from "../lib/strings";
 
 export interface ActionBarProps {
   /** The one thing to do next. */
@@ -29,7 +30,8 @@ export interface ActionBarProps {
  * home indicator; on the desktop it sits under the content. Every wizard, every
  * multi-step form uses this, so the buttons are in the same place on every screen.
  */
-export function ActionBar({ primary, secondary, onBack, backLabel = "Back", leading, pinned, className }: ActionBarProps) {
+export function ActionBar({ primary, secondary, onBack, backLabel, leading, pinned, className }: ActionBarProps) {
+  const { strings: t } = useCrispStrings();
   const compact = useCompactLayout();
   const pin = pinned ?? compact;
   return (
@@ -43,7 +45,7 @@ export function ActionBar({ primary, secondary, onBack, backLabel = "Back", lead
       )}
     >
       {onBack && !pin && (
-        <Button variant="ghost" leading={<ArrowLeft size={icon.md} />} onClick={onBack}>{backLabel}</Button>
+        <Button variant="ghost" leading={<ArrowLeft size={icon.md} />} onClick={onBack}>{backLabel ?? t.actionBarBack}</Button>
       )}
       {leading}
       <span className="flex-1" />

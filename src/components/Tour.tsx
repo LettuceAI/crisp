@@ -83,6 +83,8 @@ export function Tour({ steps, open, onClose, onFinish, finishLabel }: TourProps)
       }
     : { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
 
+  if (typeof document === "undefined") return null;
+
   return createPortal(
     <AnimatePresence>
       {open && (

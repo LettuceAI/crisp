@@ -31,6 +31,8 @@ export function Dialog({ open, onClose, title, description, footer, size = "md",
   const panelRef = useRef<HTMLDivElement>(null);
   useModal(open, onClose, panelRef);
 
+  if (typeof document === "undefined") return null;
+
   return createPortal(
     <AnimatePresence>
       {open && (

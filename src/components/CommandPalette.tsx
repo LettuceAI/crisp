@@ -100,6 +100,8 @@ export function CommandPalette({
 
   let index = -1;
 
+  if (typeof document === "undefined") return null;
+
   return createPortal(
     <AnimatePresence>
       {open && (

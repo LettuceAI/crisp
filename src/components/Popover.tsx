@@ -164,6 +164,8 @@ export function PopoverContent({ side = "bottom", align = "start", offset = 6, m
     };
   }, [open, setOpen, anchorRef]);
 
+  if (typeof document === "undefined") return null;
+
   return createPortal(
     <AnimatePresence>
       {open && (

@@ -95,7 +95,7 @@ export function ContextMenu({ menu, longPressDelay = 450, onOpenChange, disabled
       >
         {children}
       </div>
-      {createPortal(
+      {typeof document !== "undefined" && createPortal(
         <AnimatePresence>
           {point && (
             <motion.div

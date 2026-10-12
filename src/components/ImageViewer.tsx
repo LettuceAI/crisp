@@ -62,6 +62,8 @@ export function ImageViewer({ images, index, onIndexChange }: ImageViewerProps) 
 
   useEffect(() => { if (!open) setZoom(1); }, [open]);
 
+  if (typeof document === "undefined") return null;
+
   return createPortal(
     <AnimatePresence>
       {open && image && (

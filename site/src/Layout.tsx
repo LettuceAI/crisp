@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Box, Button, Flex, IconButton, ScrollArea, Select, Sheet, Text, useTheme } from "@lettuceai/crisp";
+import { Box, Button, ConfirmHost, Flex, IconButton, ScrollArea, Select, Sheet, Text, Toaster, useTheme } from "@lettuceai/crisp";
 import { ExternalLink, Menu } from "lucide-react";
 import { useMounted } from "./mounted";
 import { toHref, useNavigate, useRoute } from "./router";
@@ -117,6 +117,8 @@ export function Layout({ children }: { children: ReactNode }) {
         </Box>
       </Flex>
       <SiteFooter />
+      <Toaster />
+      <ConfirmHost />
       <Sheet open={navOpen} onClose={() => setNavOpen(false)} title="Documentation" size="lg">
         <SideNav />
       </Sheet>

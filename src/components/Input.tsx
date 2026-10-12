@@ -34,10 +34,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className="relative">
       {leading && (
-        <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-fg-3">{leading}</span>
+        <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-fg-3">{leading}</span>
       )}
       {control}
-      {trailing && <span className="absolute right-2 top-1/2 -translate-y-1/2">{trailing}</span>}
+      {trailing && <span className="absolute inset-y-0 right-2 flex items-center">{trailing}</span>}
     </div>
   );
 });

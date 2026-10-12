@@ -34,9 +34,10 @@ export function Switch({ checked, onChange, disabled, id, className, ...aria }: 
     >
       <motion.span
         aria-hidden="true"
-        layout
+        initial={false}
+        animate={{ x: checked ? 20 : 0 }}
         transition={m.snap}
-        className={cn("block h-5 w-5 rounded-full bg-knob shadow-sm ring-1 ring-inset ring-black/5", checked && "ml-auto")}
+        className="block h-5 w-5 rounded-full bg-knob shadow-sm ring-1 ring-inset ring-black/5"
       />
     </button>
   );

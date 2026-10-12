@@ -14,3 +14,5 @@ export { tintFromName } from "./lib/tint";
 export { hexToRgb, normaliseHex, luminance, contrastRatio, isLight, readableOn, mixHex } from "./lib/color";
 export type { PolymorphicProps, PolymorphicRef, PolymorphicComponent } from "./lib/polymorphic";
 export { relativeTime, compactNumber, fileSize } from "./lib/format";
+export { englishStrings, CrispStringsProvider, useCrispStrings } from "./lib/strings";
+export type { CrispStrings, CrispStringsProviderProps } from "./lib/strings";

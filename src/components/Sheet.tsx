@@ -35,6 +35,11 @@ export interface SheetProps {
    * moment it takes focus.
    */
   closeButton?: boolean;
+  /**
+   * `false` while the sheet must stay up, such as during a download it shows: drag,
+   * scrim, Escape and the close button no longer close it. Default `true`.
+   */
+  dismissible?: boolean;
   footer?: ReactNode;
   /**
    * `bottom` (default) everywhere — the bottom menu is the app's signature surface and
@@ -107,6 +112,7 @@ export function Sheet({
   leftAction,
   rightAction,
   closeButton,
+  dismissible = true,
   footer,
   placement = "bottom",
   size = "md",
@@ -129,7 +135,10 @@ export function Sheet({
   const framed = Boolean(useFrame().portal);
   const unit = framed ? "%" : "dvh";
 
-  useModal(open, onClose, panelRef, { lockScroll: !framed });
+  const requestClose = () => {
+    if (dismissible) onClose();
+  };
+  useModal(open, requestClose, panelRef, { lockScroll: !framed });
   useEffect(() => {
     if (open) setDetent(defaultDetent);
   }, [open, defaultDetent]);
@@ -274,8 +283,10 @@ export function Sheet({
       if (steps && detent > 0) {
         setDetent((i) => Math.max(i - 1, 0));
         run(0, m.sheetSettle, velocity);
-      } else {
+      } else if (dismissible) {
         dismiss(velocity);
+      } else {
+        run(0, m.sheetSettle, velocity);
       }
       return;
     }
@@ -292,7 +303,7 @@ export function Sheet({
         }
       : {};
 
-  const showClose = closeButton ?? !bottom;
+  const showClose = dismissible && (closeButton ?? !bottom);
   const shared = "flex flex-col overflow-hidden border-line bg-surface-2 outline-none";
 
   const header = (
@@ -318,17 +329,19 @@ export function Sheet({
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {rightAction}
-          <IconButton
-            label={t.sheetClose}
-            shape="round"
-            variant="secondary"
-            size="sm"
-            onClick={onClose}
-            data-modal-chrome
-            className={cn(!showClose && "sr-only focus-visible:not-sr-only")}
-          >
-            <X size={14} />
-          </IconButton>
+          {dismissible && (
+            <IconButton
+              label={t.sheetClose}
+              shape="round"
+              variant="secondary"
+              size="sm"
+              onClick={requestClose}
+              data-modal-chrome
+              className={cn(!showClose && "sr-only focus-visible:not-sr-only")}
+            >
+              <X size={14} />
+            </IconButton>
+          )}
         </div>
       </div>
       <div className="h-px bg-line" />
@@ -367,7 +380,7 @@ export function Sheet({
       <div className="fixed inset-0 z-50">
         {/* No backdrop blur: blurring the whole page under a moving scrim is the most
             expensive frame a webview can be asked for, and the platform only dims. */}
-        <motion.div className="absolute inset-0 bg-black/50" style={{ opacity: scrim }} onClick={onClose} />
+        <motion.div className="absolute inset-0 bg-black/50" style={{ opacity: scrim }} onClick={requestClose} />
         <motion.div
           ref={panelRef}
           {...dialogProps}
@@ -426,7 +439,7 @@ export function Sheet({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={m.quick}
-          onClick={onClose}
+          onClick={requestClose}
         />
         {side ? panel : <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4 [&>*]:pointer-events-auto">{panel}</div>}
       </motion.div>

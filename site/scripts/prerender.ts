@@ -24,3 +24,10 @@ for (const page of pages) {
 
 console.log(`prerendered ${pages.length} routes`);
 for (const page of pages) console.log(`  /crisp/${page.route ? page.route + "/" : ""}`);
+
+const origin = "https://www.lettuceai.app";
+const urls = pages.map((page) => `${origin}/crisp/${page.route ? page.route + "/" : ""}`);
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((url) => `  <url><loc>${url}</loc></url>`).join("\n")}\n</urlset>\n`;
+await writeFile(path.join(dist, "sitemap.xml"), sitemap);
+await writeFile(path.join(dist, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${origin}/crisp/sitemap.xml\n`);
+console.log("wrote sitemap.xml and robots.txt");

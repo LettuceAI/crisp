@@ -60,6 +60,7 @@ export * from "./PartitionBar";
 export * from "./Popover";
 export * from "./primitives";
 export * from "./Progress";
+export * from "./InlineMarkdown";
 export * from "./Prose";
 export * from "./Radio";
 export * from "./Resizable";

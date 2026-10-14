@@ -19,6 +19,8 @@ export interface ComposerMic {
   transcribing?: boolean;
   elapsedMs: number;
   analyser: AnalyserNode | null;
+  /** The input level from 0 to 1, for a recorder that has no `analyser` in the page. */
+  level?: number;
   onStart: () => void;
   onStop: () => void;
   onCancel: () => void;
@@ -150,7 +152,7 @@ export function Composer({
           )}
 
           {recording && mic ? (
-            <RecordingWave elapsedMs={mic.elapsedMs} analyser={mic.analyser} frozen={mic.transcribing} />
+            <RecordingWave elapsedMs={mic.elapsedMs} analyser={mic.analyser} level={mic.level} frozen={mic.transcribing} />
           ) : (
             <textarea
               ref={textareaRef}
@@ -233,13 +235,15 @@ function formatElapsed(ms: number) {
 }
 
 /** Live waveform while recording. Same sampling as the app; drawn in tokens. */
-export function RecordingWave({ elapsedMs, analyser, frozen = false }: { elapsedMs: number; analyser: AnalyserNode | null; frozen?: boolean }) {
+export function RecordingWave({ elapsedMs, analyser, level, frozen = false }: { elapsedMs: number; analyser: AnalyserNode | null; level?: number; frozen?: boolean }) {
   const { strings: t } = useCrispStrings();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const samplesRef = useRef<number[]>([]);
   const dataRef = useRef<Uint8Array | null>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
+  const levelRef = useRef(level);
+  levelRef.current = level;
 
   useEffect(() => {
     const el = containerRef.current;
@@ -282,6 +286,10 @@ export function RecordingWave({ elapsedMs, analyser, frozen = false }: { elapsed
         for (const byte of dataRef.current) { const v = (byte - 128) / 128; sumSq += v * v; }
         const rms = Math.sqrt(sumSq / dataRef.current.length);
         samplesRef.current.push(Math.min(1, Math.pow(rms * 18, 0.5)));
+        if (samplesRef.current.length > maxBars) samplesRef.current.splice(0, samplesRef.current.length - maxBars);
+        lastPush = now;
+      } else if (!frozen && !analyser && levelRef.current !== undefined && now - lastPush >= INTERVAL) {
+        samplesRef.current.push(Math.min(1, Math.max(0, Math.pow(levelRef.current, 0.5))));
         if (samplesRef.current.length > maxBars) samplesRef.current.splice(0, samplesRef.current.length - maxBars);
         lastPush = now;
       }

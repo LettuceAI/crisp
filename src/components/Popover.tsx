@@ -84,7 +84,7 @@ export function PopoverAnchor({ children }: { children: ReactElement<Record<stri
 export function usePopoverPosition(
   anchorRef: React.MutableRefObject<HTMLElement | null>,
   panelRef: React.RefObject<HTMLElement | null>,
-  { open, side, align, offset }: { open: boolean; side: PopoverSide; align: PopoverAlign; offset: number },
+  { open, side, align, offset, portal }: { open: boolean; side: PopoverSide; align: PopoverAlign; offset: number; portal?: HTMLElement | null },
 ) {
   const [style, setStyle] = useState<{ top: number; left: number; minWidth?: number }>({ top: 0, left: 0 });
 
@@ -95,10 +95,15 @@ export function usePopoverPosition(
       const panel = panelRef.current?.getBoundingClientRect();
       if (!anchor || !panel) return;
       const margin = 8;
+      const bounds = portal && portal !== document.body ? portal.getBoundingClientRect() : null;
+      const originTop = bounds?.top ?? 0;
+      const originLeft = bounds?.left ?? 0;
+      const bottom = bounds?.bottom ?? window.innerHeight;
+      const right = bounds?.right ?? window.innerWidth;
       let resolved = side;
 
-      if (side === "bottom" && anchor.bottom + offset + panel.height > window.innerHeight - margin) resolved = "top";
-      if (side === "top" && anchor.top - offset - panel.height < margin) resolved = "bottom";
+      if (side === "bottom" && anchor.bottom + offset + panel.height > bottom - margin) resolved = "top";
+      if (side === "top" && anchor.top - offset - panel.height < originTop + margin) resolved = "bottom";
 
       let top = 0;
       let left = 0;
@@ -111,8 +116,8 @@ export function usePopoverPosition(
       }
 
       setStyle({
-        top: Math.max(margin, Math.min(top, window.innerHeight - panel.height - margin)),
-        left: Math.max(margin, Math.min(left, window.innerWidth - panel.width - margin)),
+        top: Math.max(originTop + margin, Math.min(top, bottom - panel.height - margin)) - originTop,
+        left: Math.max(originLeft + margin, Math.min(left, right - panel.width - margin)) - originLeft,
         minWidth: anchor.width,
       });
     };
@@ -123,7 +128,7 @@ export function usePopoverPosition(
       window.removeEventListener("scroll", place, true);
       window.removeEventListener("resize", place);
     };
-  }, [open, side, align, offset, anchorRef, panelRef]);
+  }, [open, side, align, offset, portal, anchorRef, panelRef]);
 
   return style;
 }

@@ -40,6 +40,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
         onKeyDown={(event) => {
           if (event.key === "Escape" && value) {
             event.preventDefault();
+            event.stopPropagation();
             onChange("");
           }
         }}

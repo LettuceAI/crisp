@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode, type Ref } from "react";
 import { createPortal } from "react-dom";
 import {
   animate, AnimatePresence, motion, useMotionValue, usePresence, useReducedMotion, useTransform,
@@ -8,6 +8,7 @@ import { X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
 import { useModal } from "../lib/useModal";
+import { mergeRefs } from "../lib/ref";
 import { useCompactLayout } from "../lib/useMediaQuery";
 import { useFrame, usePortalTarget } from "../lib/frame";
 import { IconButton } from "./IconButton";
@@ -60,6 +61,7 @@ export interface SheetProps {
   /** Start at this detent index. Default 0. */
   defaultDetent?: number;
   className?: string;
+  scrollRef?: Ref<HTMLDivElement>;
   children: ReactNode;
 }
 
@@ -119,6 +121,7 @@ export function Sheet({
   detents,
   defaultDetent = 0,
   className,
+  scrollRef,
   children,
 }: SheetProps) {
   const { strings: t } = useCrispStrings();
@@ -126,6 +129,7 @@ export function Sheet({
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const mergedBodyRef = useMemo(() => mergeRefs(bodyRef, scrollRef), [scrollRef]);
   const compact = useCompactLayout();
   const reduced = useReducedMotion();
   const [detent, setDetent] = useState(defaultDetent);
@@ -350,7 +354,7 @@ export function Sheet({
 
   const body = (
     <div
-      ref={bodyRef}
+      ref={mergedBodyRef}
       {...dragHandlers(true)}
       className={cn(
         "scrollbar-thin min-h-0 overflow-y-auto overscroll-contain px-5 py-4",

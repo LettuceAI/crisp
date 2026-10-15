@@ -2,15 +2,21 @@ import {
   createContext, useCallback, useContext, useEffect, useId, useRef, useState,
   type KeyboardEvent, type ReactElement, type ReactNode, cloneElement,
 } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
+import { usePortalTarget } from "../lib/frame";
+import { getElementRef, mergeRefs } from "../lib/ref";
+import { usePopoverPosition } from "./Popover";
 
 interface MenuContextValue {
   open: boolean;
   setOpen: (open: boolean) => void;
   id: string;
+  triggerRef: React.RefObject<HTMLElement | null>;
+  panelRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const MenuContext = createContext<MenuContextValue | null>(null);
@@ -27,25 +33,33 @@ export function Menu({ children }: MenuProps) {
   const [open, setOpen] = useState(false);
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!ref.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (!ref.current?.contains(target) && !panelRef.current?.contains(target)) setOpen(false);
     };
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        setOpen(false);
+        triggerRef.current?.focus({ preventScroll: true });
+      }
     };
     document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keydown", onKeyDown, true);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keydown", onKeyDown, true);
     };
   }, [open]);
 
   return (
-    <MenuContext.Provider value={{ open, setOpen, id }}>
+    <MenuContext.Provider value={{ open, setOpen, id, triggerRef, panelRef }}>
       <div ref={ref} className="relative inline-flex">
         {children}
       </div>
@@ -60,9 +74,11 @@ function useMenu() {
 }
 
 export function MenuTrigger({ children }: { children: ReactElement<Record<string, unknown>> }) {
-  const { open, setOpen, id } = useMenu();
+  const { open, setOpen, id, triggerRef } = useMenu();
+  const childRef = getElementRef<HTMLElement>(children);
   const child = children.props as { onClick?: (e: unknown) => void };
   return cloneElement(children, {
+    ref: mergeRefs(triggerRef, childRef),
     "aria-haspopup": "menu",
     "aria-expanded": open,
     "aria-controls": id,
@@ -78,8 +94,9 @@ export interface MenuContentProps {
 }
 
 export function MenuContent({ align = "start", side = "bottom", className, children }: MenuContentProps) {
-  const { open, setOpen, id } = useMenu();
-  const listRef = useRef<HTMLDivElement>(null);
+  const { open, setOpen, id, triggerRef, panelRef: listRef } = useMenu();
+  const portal = usePortalTarget();
+  const position = usePopoverPosition(triggerRef, listRef, { open, side, align, offset: 6, portal });
 
   useEffect(() => {
     if (open) listRef.current?.querySelector<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')?.focus();
@@ -95,29 +112,32 @@ export function MenuContent({ align = "start", side = "bottom", className, child
     if (event.key === "Tab") setOpen(false);
   }, [setOpen]);
 
-  return (
+  if (!portal) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
           ref={listRef}
           id={id}
           role="menu"
+          style={{ top: position.top, left: position.left }}
           onKeyDown={onKeyDown}
           initial={{ opacity: 0, scale: 0.97, y: side === "bottom" ? -4 : 4 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.97, y: side === "bottom" ? -4 : 4 }}
           transition={m.instant}
           className={cn(
-            "absolute z-50 min-w-48 rounded-xl border border-line bg-surface-2 p-1 shadow-raised",
-            side === "bottom" ? "top-full mt-1.5" : "bottom-full mb-1.5",
-            align === "start" ? "left-0 origin-top-left" : "right-0 origin-top-right",
+            "fixed z-70 min-w-48 rounded-xl border border-line bg-surface-2 p-1 shadow-raised",
+            align === "start" ? "origin-top-left" : "origin-top-right",
             className,
           )}
         >
           {children}
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    portal,
   );
 }
 

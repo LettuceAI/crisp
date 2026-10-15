@@ -313,8 +313,8 @@ export function Sheet({
           <span className="h-1 w-9 rounded-full bg-line-3" aria-hidden="true" />
         </div>
       )}
-      <div className={cn("flex items-start gap-2 px-4", bottom ? "pb-3 pt-1.5" : "py-4")}>
-        {leftAction && <div className="shrink-0 pt-0.5">{leftAction}</div>}
+      <div className={cn("flex items-center gap-2 px-4", bottom ? "pb-3 pt-1.5" : "py-4")}>
+        {leftAction && <div className="shrink-0">{leftAction}</div>}
         <div className="min-w-0 flex-1">
           {title && (
             <h2 id={titleId} className="truncate text-lg font-semibold text-fg">

@@ -114,7 +114,6 @@ export function Composer({
       <div
         className={cn(
           "rounded-[26px] border border-line bg-surface-el/85 shadow-raised backdrop-blur-md transition-colors motion-instant",
-          "focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/35",
           disabled && "opacity-60",
         )}
       >

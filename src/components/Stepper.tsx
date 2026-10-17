@@ -16,7 +16,7 @@ export interface StepperProps {
   current: number;
   /** Jump back to a completed step. Forward jumps are never offered. */
   onStepClick?: (index: number) => void;
-  /** `bar` is a segmented progress strip; `dots` is a compact row for a sheet header. */
+  /** `bar` is one row of labelled steps joined by lines; `dots` is a compact row for a sheet header. */
   variant?: "bar" | "dots";
   className?: string;
 }
@@ -47,31 +47,20 @@ export function Stepper({ steps, current, onStepClick, variant = "bar", classNam
   }
 
   return (
-    <div className={cn("space-y-2.5", className)}>
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="text-sm text-fg-3">
-          Step {clamped + 1} of {steps.length}
-          <span className="mx-1.5 text-fg-4">·</span>
-          <span className="font-medium text-fg-2">{steps[clamped]?.label}</span>
-        </p>
-        <span className="shrink-0 text-sm tabular-nums text-fg-3">
-          {Math.round((clamped / Math.max(1, steps.length - 1)) * 100)}%
-        </span>
-      </div>
-      <ol className="flex gap-1.5">
+    <ol className={cn("flex items-center gap-2", className)} aria-label={t.stepperProgress(clamped + 1, steps.length)}>
         {steps.map((step, index) => {
           const done = index < clamped;
           const active = index === clamped;
           const reachable = done && onStepClick;
           const Tag = reachable ? "button" : "div";
           return (
-            <li key={step.id} className="min-w-0 flex-1">
+            <li key={step.id} className={cn("flex min-w-0 items-center gap-2", index < steps.length - 1 && "flex-1")}>
               <Tag
                 {...(reachable ? { type: "button" as const, onClick: () => onStepClick(index) } : {})}
                 aria-current={active ? "step" : undefined}
                 aria-label={reachable ? t.stepperBackTo(step.label) : undefined}
                 className={cn(
-                  "flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left transition-colors",
+                  "-mx-1.5 flex min-w-0 shrink-0 items-center gap-1.5 rounded-lg px-1.5 py-1 text-left transition-colors",
                   reachable && "hover:bg-fill-2",
                 )}
               >
@@ -84,18 +73,19 @@ export function Stepper({ steps, current, onStepClick, variant = "bar", classNam
                 >
                   {done ? <Check size={12} strokeWidth={3} /> : step.icon ?? index + 1}
                 </motion.span>
-                <span className={cn("hidden min-w-0 truncate text-sm @md:block", active ? "font-medium text-fg" : done ? "text-fg-2" : "text-fg-4")}>
+                <span className={cn("min-w-0 truncate text-sm", active ? "block font-medium text-fg" : "hidden @md:block", done ? "text-fg-2" : !active && "text-fg-4")}>
                   {step.label}
                 </span>
               </Tag>
-              <span
-                aria-hidden="true"
-                className={cn("mt-1 block h-1 rounded-full transition-colors motion-slow", done || active ? "bg-accent" : "bg-fill-3")}
-              />
+              {index < steps.length - 1 && (
+                <span
+                  aria-hidden="true"
+                  className={cn("h-px min-w-3 flex-1 transition-colors motion-slow", done ? "bg-accent" : "bg-line-2")}
+                />
+              )}
             </li>
           );
         })}
-      </ol>
-    </div>
+    </ol>
   );
 }

@@ -1,4 +1,4 @@
-import type { ReactNode, Ref } from "react";
+import { useLayoutEffect, useRef, type ReactNode, type Ref } from "react";
 import { cn } from "../lib/cn";
 import { AppBar, type AppBarProps } from "./AppBar";
 
@@ -19,11 +19,26 @@ export interface PageProps extends AppBarProps {
  * it takes the whole screen — a sub-page has the back arrow, not the tab bar.
  */
 export function Page({ footer, mainRef, padding = "default", contentClassName, className, children, ...bar }: PageProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  /* The content learns how tall the sticky header is, so its own sticky parts (a side
+     column, a preview) can sit just below it: `top-(--page-bar-height)`. */
+  useLayoutEffect(() => {
+    const content = contentRef.current;
+    const header = content?.previousElementSibling;
+    if (!content || !(header instanceof HTMLElement)) return;
+    const measure = () => content.style.setProperty("--page-bar-height", `${header.offsetHeight}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
       <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto">
         <AppBar scrollRef={mainRef as AppBarProps["scrollRef"]} {...bar} />
-        <div className={cn(padding === "default" && "px-4 pb-10 pt-1 @xl:px-6", contentClassName)}>{children}</div>
+        <div ref={contentRef} className={cn(padding === "default" && "px-4 pb-10 pt-1 @xl:px-6", contentClassName)}>{children}</div>
       </main>
       {footer}
     </div>

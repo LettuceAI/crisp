@@ -1,7 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { cn } from "../lib/cn";
 
-export type IconButtonVariant = "ghost" | "secondary" | "tonal";
+export type IconButtonVariant = "ghost" | "secondary" | "tonal" | "overlay";
 export type IconButtonSize = "sm" | "md" | "lg";
 
 export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
@@ -19,6 +19,7 @@ const variantClass: Record<IconButtonVariant, string> = {
   ghost: "text-fg-2 hover:bg-fill-2 hover:text-fg active:bg-fill-3",
   secondary: "border border-line bg-fill text-fg-2 hover:border-line-3 hover:bg-fill-2 hover:text-fg active:bg-fill-3",
   tonal: "border border-accent/30 bg-accent/15 text-accent hover:border-accent/55 hover:bg-accent/28 active:bg-accent/38",
+  overlay: "border border-line-2 bg-surface-el/90 text-fg shadow-raised backdrop-blur-sm hover:bg-surface-2 active:bg-surface-2",
 };
 
 const sizeClass: Record<IconButtonSize, string> = {

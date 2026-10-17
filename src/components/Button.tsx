@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import { cn } from "../lib/cn";
 import { icon } from "../lib/icon";
 
-export type ButtonVariant = "primary" | "tonal" | "secondary" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "tonal" | "secondary" | "ghost" | "danger" | "overlay";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
@@ -25,6 +25,7 @@ const variantClass: Record<ButtonVariant, string> = {
   secondary: "border border-line bg-fill-2 text-fg hover:border-line-3 hover:bg-fill-3 active:bg-line-2",
   ghost: "text-fg-2 hover:bg-fill-2 hover:text-fg active:bg-fill-3",
   danger: "border border-danger/25 bg-danger/12 text-danger hover:border-danger/55 hover:bg-danger/22 active:bg-danger/32",
+  overlay: "border border-line-2 bg-surface-el/90 text-fg shadow-raised backdrop-blur-sm hover:bg-surface-2 active:bg-surface-2",
 };
 
 /* The ring has to contrast with what it rings: accent on an accent fill disappears, and
@@ -35,6 +36,7 @@ const focusClass: Record<ButtonVariant, string> = {
   secondary: "focus-visible:outline-fg-2",
   ghost: "focus-visible:outline-fg-2",
   danger: "focus-visible:outline-danger",
+  overlay: "focus-visible:outline-fg",
 };
 
 const sizeClass: Record<ButtonSize, string> = {

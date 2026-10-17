@@ -1,5 +1,6 @@
 import { forwardRef, useCallback, useLayoutEffect, useRef, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
 import { cn } from "../lib/cn";
+import { textareaHeight } from "../lib/textarea";
 import { useFieldContext } from "./Field";
 
 export const inputSurface = cn(
@@ -64,10 +65,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
     const line = parseFloat(getComputedStyle(el).lineHeight) || 24;
     const pad = el.offsetHeight - el.clientHeight + (parseFloat(getComputedStyle(el).paddingTop) + parseFloat(getComputedStyle(el).paddingBottom));
     el.style.height = "0px";
-    const max = line * maxRows + pad;
-    el.style.height = `${Math.min(el.scrollHeight, max)}px`;
-    el.style.overflowY = el.scrollHeight > max ? "auto" : "hidden";
-  }, [autoGrow, maxRows]);
+    const fitted = textareaHeight({ content: el.scrollHeight, line, pad, rows, maxRows });
+    el.style.height = `${fitted.height}px`;
+    el.style.overflowY = fitted.scrolls ? "auto" : "hidden";
+  }, [autoGrow, rows, maxRows]);
 
   /* Fit on mount and whenever the value is set from outside. */
   useLayoutEffect(fit, [fit, rest.value]);

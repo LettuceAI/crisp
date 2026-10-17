@@ -23,6 +23,8 @@ export interface CharacterCardProps extends Omit<HTMLMotionProps<"button">, "tit
   /** Slot on the trailing edge — a badge, a menu. Replaces the chevron. */
   trailing?: ReactNode;
   selected?: boolean;
+  /** Letters shown in place of a missing avatar. Defaults to the start of the name. */
+  initials?: string;
 }
 
 /**
@@ -34,7 +36,7 @@ export interface CharacterCardProps extends Omit<HTMLMotionProps<"button">, "tit
  * narrow pane on a wide monitor still gets the phone-sized card.
  */
 export const CharacterCard = forwardRef<HTMLButtonElement, CharacterCardProps>(function CharacterCard(
-  { name, description, avatar, gradient, fg, fgMuted, variant = "row", trailing, selected, className, type = "button", ...rest },
+  { name, description, avatar, gradient, fg, fgMuted, variant = "row", trailing, selected, initials, className, type = "button", ...rest },
   ref,
 ) {
   const [broken, setBroken] = useState(false);
@@ -88,7 +90,7 @@ export const CharacterCard = forwardRef<HTMLButtonElement, CharacterCardProps>(f
             <img src={avatar!} alt="" loading="lazy" decoding="async" onError={() => setBroken(true)} className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full w-full items-center justify-center bg-fill-2 text-lg font-semibold text-fg-2">
-              {name.slice(0, 2).toUpperCase()}
+              {initials ?? name.slice(0, 2).toUpperCase()}
             </span>
           )}
         </span>

@@ -66,6 +66,10 @@ export interface CrispStrings {
   datePickerPlaceholder: string;
   datePickerPreviousMonth: string;
   datePickerNextMonth: string;
+  datePickerChooseMonth: string;
+  datePickerPreviousYear: string;
+  datePickerNextYear: string;
+  datePickerYear: string;
   datePickerTime: string;
   dialogClose: string;
   diffBefore: string;
@@ -269,6 +273,10 @@ export const englishStrings: CrispStrings = {
   datePickerPlaceholder: "Pick a date",
   datePickerPreviousMonth: "Previous month",
   datePickerNextMonth: "Next month",
+  datePickerChooseMonth: "Choose month and year",
+  datePickerPreviousYear: "Previous year",
+  datePickerNextYear: "Next year",
+  datePickerYear: "Year",
   datePickerTime: "Time",
   dialogClose: "Close",
   diffBefore: "Theirs",

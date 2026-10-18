@@ -5,6 +5,7 @@ import { useFieldContext } from "./Field";
 import { inputSurface } from "./Input";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 import { useCrispStrings } from "../lib/strings";
+import { calendarDate, daysInMonth } from "../lib/calendar";
 
 function startOfDay(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
 function sameDay(a: Date, b: Date) { return startOfDay(a).getTime() === startOfDay(b).getTime(); }
@@ -20,89 +21,144 @@ export interface CalendarProps {
   className?: string;
 }
 
-/** The month grid. Uses Intl for day and month names, so it follows the app's 20 locales. */
+/**
+ * The month grid. Uses Intl for day and month names, so it follows the app's 20 locales.
+ * The month title opens a month and year view with a typed year, so a date centuries
+ * away is a few keystrokes rather than hundreds of clicks.
+ */
 export function Calendar({ value, onChange, min, max, weekStartsOn = 1, locale: localeProp, className }: CalendarProps) {
   const { strings: t, locale: contextLocale } = useCrispStrings();
   const locale = localeProp ?? contextLocale;
   const [cursor, setCursor] = useState(() => startOfDay(value ?? new Date()));
+  const [view, setView] = useState<"days" | "months">("days");
+  const [yearText, setYearText] = useState(() => String(cursor.getFullYear()));
   const today = startOfDay(new Date());
+  const year = cursor.getFullYear();
 
-  const { days, monthLabel, weekdays } = useMemo(() => {
-    const year = cursor.getFullYear();
+  const { days, monthLabel, weekdays, monthNames } = useMemo(() => {
     const month = cursor.getMonth();
-    const first = new Date(year, month, 1);
+    const first = calendarDate(year, month, 1);
     const lead = (first.getDay() - weekStartsOn + 7) % 7;
-    const total = new Date(year, month + 1, 0).getDate();
+    const total = daysInMonth(year, month);
 
     const cells: (Date | null)[] = Array.from({ length: lead }, () => null);
-    for (let d = 1; d <= total; d++) cells.push(new Date(year, month, d));
+    for (let d = 1; d <= total; d++) cells.push(calendarDate(year, month, d));
 
     const dayFmt = new Intl.DateTimeFormat(locale, { weekday: "narrow" });
     const names = Array.from({ length: 7 }, (_, i) => dayFmt.format(new Date(2024, 0, 7 + ((i + weekStartsOn) % 7))));
+    const monthFmt = new Intl.DateTimeFormat(locale, { month: "short" });
 
     return {
       days: cells,
       monthLabel: new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(first),
       weekdays: names,
+      monthNames: Array.from({ length: 12 }, (_, i) => monthFmt.format(new Date(2024, i, 1))),
     };
-  }, [cursor, weekStartsOn, locale]);
+  }, [cursor, year, weekStartsOn, locale]);
 
   const disabled = (date: Date) => (min && date < startOfDay(min)) || (max && date > startOfDay(max));
+  const goYear = (next: number) => {
+    setCursor(calendarDate(next, cursor.getMonth(), 1));
+    setYearText(String(next));
+  };
+  const navButton = "touch-target flex h-7 w-7 items-center justify-center rounded-lg text-fg-3 hover:bg-fill-2 hover:text-fg";
 
   /* The grid is seven columns wide, so a 44px minimum on the cells has to come from the
      calendar being wider — not from the cells overflowing it. */
   return (
     <div className={cn("w-64 select-none [@media(pointer:coarse)]:w-[21rem]", className)}>
-      <div className="mb-2 flex items-center gap-1">
-        <button
-          type="button"
-          onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-          aria-label={t.datePickerPreviousMonth}
-          className="touch-target flex h-7 w-7 items-center justify-center rounded-lg text-fg-3 hover:bg-fill-2 hover:text-fg"
-        >
-          <ChevronLeft size={16} />
-        </button>
-        <span aria-live="polite" className="flex-1 text-center text-sm font-medium text-fg">{monthLabel}</span>
-        <button
-          type="button"
-          onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-          aria-label={t.datePickerNextMonth}
-          className="touch-target flex h-7 w-7 items-center justify-center rounded-lg text-fg-3 hover:bg-fill-2 hover:text-fg"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-7 gap-0.5">
-        {weekdays.map((name, i) => (
-          <span key={i} className="flex h-7 items-center justify-center text-2xs font-medium text-fg-3">{name}</span>
-        ))}
-        {days.map((date, i) =>
-          date ? (
-            <button
-              key={i}
-              type="button"
-              disabled={disabled(date)}
-              onClick={() => onChange(date)}
-              aria-current={sameDay(date, today) ? "date" : undefined}
-              aria-pressed={value ? sameDay(date, value) : false}
-              className={cn(
-                "flex h-8 items-center justify-center rounded-lg text-sm tabular-nums transition-colors [@media(pointer:coarse)]:h-11",
-                value && sameDay(date, value)
-                  ? "bg-accent font-medium text-on-accent"
-                  : sameDay(date, today)
-                    ? "text-accent hover:bg-fill-2"
-                    : "text-fg-2 hover:bg-fill-2 hover:text-fg",
-                disabled(date) && "pointer-events-none opacity-25",
-              )}
-            >
-              {date.getDate()}
+      {view === "days" ? (
+        <>
+          <div className="mb-2 flex items-center gap-1">
+            <button type="button" onClick={() => setCursor(calendarDate(year, cursor.getMonth() - 1, 1))} aria-label={t.datePickerPreviousMonth} className={navButton}>
+              <ChevronLeft size={16} />
             </button>
-          ) : (
-            <span key={i} />
-          ),
-        )}
-      </div>
+            <button
+              type="button"
+              onClick={() => { setYearText(String(year)); setView("months"); }}
+              aria-label={t.datePickerChooseMonth}
+              className="flex h-7 flex-1 items-center justify-center rounded-lg text-sm font-medium text-fg hover:bg-fill-2"
+            >
+              <span aria-live="polite">{monthLabel}</span>
+            </button>
+            <button type="button" onClick={() => setCursor(calendarDate(year, cursor.getMonth() + 1, 1))} aria-label={t.datePickerNextMonth} className={navButton}>
+              <ChevronRight size={16} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-7 gap-0.5">
+            {weekdays.map((name, i) => (
+              <span key={i} className="flex h-7 items-center justify-center text-2xs font-medium text-fg-3">{name}</span>
+            ))}
+            {days.map((date, i) =>
+              date ? (
+                <button
+                  key={i}
+                  type="button"
+                  disabled={disabled(date)}
+                  onClick={() => onChange(date)}
+                  aria-current={sameDay(date, today) ? "date" : undefined}
+                  aria-pressed={value ? sameDay(date, value) : false}
+                  className={cn(
+                    "flex h-8 items-center justify-center rounded-lg text-sm tabular-nums transition-colors [@media(pointer:coarse)]:h-11",
+                    value && sameDay(date, value)
+                      ? "bg-accent font-medium text-on-accent"
+                      : sameDay(date, today)
+                        ? "text-accent hover:bg-fill-2"
+                        : "text-fg-2 hover:bg-fill-2 hover:text-fg",
+                    disabled(date) && "pointer-events-none opacity-25",
+                  )}
+                >
+                  {date.getDate()}
+                </button>
+              ) : (
+                <span key={i} />
+              ),
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="mb-2 flex items-center gap-1">
+            <button type="button" onClick={() => goYear(year - 1)} aria-label={t.datePickerPreviousYear} className={navButton}>
+              <ChevronLeft size={16} />
+            </button>
+            <input
+              inputMode="numeric"
+              value={yearText}
+              aria-label={t.datePickerYear}
+              onChange={(event) => {
+                const text = event.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+                setYearText(text);
+                const next = Number(text);
+                if (text && next >= 1) setCursor(calendarDate(next, cursor.getMonth(), 1));
+              }}
+              onBlur={() => setYearText(String(year))}
+              className="h-7 min-w-0 flex-1 rounded-lg border border-line bg-fill text-center text-sm font-medium tabular-nums text-fg outline-none focus:border-accent focus:ring-1 focus:ring-accent/35"
+            />
+            <button type="button" onClick={() => goYear(year + 1)} aria-label={t.datePickerNextYear} className={navButton}>
+              <ChevronRight size={16} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-1">
+            {monthNames.map((name, month) => (
+              <button
+                key={month}
+                type="button"
+                onClick={() => { setCursor(calendarDate(year, month, 1)); setView("days"); }}
+                aria-pressed={cursor.getMonth() === month}
+                className={cn(
+                  "flex h-10 items-center justify-center rounded-lg text-sm transition-colors [@media(pointer:coarse)]:h-11",
+                  cursor.getMonth() === month ? "bg-fill-3 font-medium text-fg" : "text-fg-2 hover:bg-fill-2 hover:text-fg",
+                )}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

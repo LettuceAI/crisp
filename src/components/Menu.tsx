@@ -9,6 +9,7 @@ import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
 import { usePortalTarget } from "../lib/frame";
 import { getElementRef, mergeRefs } from "../lib/ref";
+import { useDismissLayer } from "../lib/layers";
 import { usePopoverPosition } from "./Popover";
 
 interface MenuContextValue {
@@ -35,6 +36,7 @@ export function Menu({ children }: MenuProps) {
   const ref = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  useDismissLayer(open, () => setOpen(false));
 
   useEffect(() => {
     if (!open) return;

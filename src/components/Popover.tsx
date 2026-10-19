@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
 import { getElementRef, mergeRefs } from "../lib/ref";
+import { useDismissLayer } from "../lib/layers";
 
 export type PopoverSide = "top" | "bottom" | "left" | "right";
 export type PopoverAlign = "start" | "center" | "end";
@@ -147,6 +148,7 @@ export function PopoverContent({ side = "bottom", align = "start", offset = 6, m
   const { open, setOpen, id, anchorRef } = usePopover();
   const panelRef = useRef<HTMLDivElement>(null);
   const position = usePopoverPosition(anchorRef, panelRef, { open, side, align, offset });
+  useDismissLayer(open, () => setOpen(false));
 
   useEffect(() => {
     if (!open) return;

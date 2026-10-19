@@ -6,6 +6,7 @@ import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
 import { IconButton } from "./IconButton";
 import { useCrispStrings } from "../lib/strings";
+import { useDismissLayer } from "../lib/layers";
 
 export interface ViewerImage {
   src: string;
@@ -39,6 +40,8 @@ export function ImageViewer({ images, index, onIndexChange }: ImageViewerProps) 
     },
     [index, images.length, onIndexChange],
   );
+
+  useDismissLayer(open, () => onIndexChange(null));
 
   useEffect(() => {
     if (!open) return;

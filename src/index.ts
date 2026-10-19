@@ -8,6 +8,7 @@ export { motion } from "./lib/motion";
 export { useLongPress } from "./lib/useLongPress";
 export { useMediaQuery, useCompactLayout } from "./lib/useMediaQuery";
 export { useModal } from "./lib/useModal";
+export { useDismissLayer, dismissTopLayer, pushLayer } from "./lib/layers";
 export { useImageBrightness } from "./lib/imageBrightness";
 export { FrameProvider, useFrame, usePortalTarget } from "./lib/frame";
 export { tintFromName } from "./lib/tint";

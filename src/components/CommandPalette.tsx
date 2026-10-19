@@ -8,6 +8,7 @@ import { Highlight } from "./Highlight";
 import { Kbd } from "./Kbd";
 import { Spinner } from "./Spinner";
 import { useCrispStrings } from "../lib/strings";
+import { useDismissLayer } from "../lib/layers";
 
 export interface Command {
   id: string;
@@ -46,6 +47,7 @@ export function CommandPalette({
   const [active, setActive] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
   const restore = useRef<HTMLElement | null>(null);
+  useDismissLayer(open, () => onOpenChange(false));
 
   const filtered = useMemo(() => {
     if (onQueryChange || !query.trim()) return commands;

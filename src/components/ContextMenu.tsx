@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
+import { useDismissLayer } from "../lib/layers";
 
 export interface ContextMenuProps {
   /** The menu body — reuse MenuItem / MenuSeparator / MenuLabel. */
@@ -53,6 +54,7 @@ export function ContextMenu({ menu, longPressDelay = 450, onOpenChange, disabled
   }, [point]);
 
   useEffect(() => clear, [clear]);
+  useDismissLayer(point !== null, () => close());
 
   const open = (x: number, y: number) => {
     const width = 224;

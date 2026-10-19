@@ -1,4 +1,5 @@
 import { useEffect, type RefObject } from "react";
+import { useDismissLayer } from "./layers";
 
 const FOCUSABLE = 'input, textarea, select, [data-autofocus], a[href], button:not([data-modal-chrome])';
 
@@ -12,6 +13,7 @@ export function useModal(
   panelRef: RefObject<HTMLElement | null>,
   { lockScroll = true }: { lockScroll?: boolean } = {},
 ) {
+  useDismissLayer(open, onClose);
   useEffect(() => {
     if (!open) return;
     const opener = document.activeElement as HTMLElement | null;

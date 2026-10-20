@@ -23,7 +23,7 @@ export interface AppBarProps {
    * defaults to the window.
    */
   scrollRef?: React.RefObject<HTMLElement | null>;
-  /** Desktop window chrome sits above; leave room for it. */
+  /** Leave room for the status bar above (the top safe area, zero on the desktop). Default on. */
   inset?: boolean;
   className?: string;
 }
@@ -35,7 +35,7 @@ export interface AppBarProps {
  */
 export function AppBar({
   title, meta, onBack, backLabel, searchValue, onSearchChange, searchPlaceholder,
-  actions, filters, scrollRef, inset, className,
+  actions, filters, scrollRef, inset = true, className,
 }: AppBarProps) {
   const { strings: t } = useCrispStrings();
   const [condensed, setCondensed] = useState(false);

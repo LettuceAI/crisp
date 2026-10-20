@@ -73,6 +73,7 @@ export function Segmented<T extends string>({
             {selected && (
               <motion.span
                 layoutId={layoutId}
+                layoutDependency={value}
                 transition={m.settle}
                 className="absolute inset-0 rounded-lg bg-fill-3 shadow-sm"
               />

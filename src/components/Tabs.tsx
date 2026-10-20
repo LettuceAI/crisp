@@ -82,7 +82,7 @@ export function Tab({ value, icon, count, children }: { value: string; icon?: Re
         <span className={cn("rounded-full px-1.5 py-0.5 text-2xs tabular-nums", selected ? "bg-fill-3 text-fg" : "bg-fill-2 text-fg-3")}>{count}</span>
       )}
       {selected && (
-        <motion.span layoutId={`${tabs.id}-indicator`} transition={m.settle} className="absolute inset-x-1 bottom-0 h-0.5 rounded-full bg-fg" />
+        <motion.span layoutId={`${tabs.id}-indicator`} layoutDependency={tabs.value} transition={m.settle} className="absolute inset-x-1 bottom-0 h-0.5 rounded-full bg-fg" />
       )}
     </button>
   );

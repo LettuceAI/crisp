@@ -317,7 +317,7 @@ export function Sheet({
           <span className="h-1 w-9 rounded-full bg-line-3" aria-hidden="true" />
         </div>
       )}
-      <div className={cn("flex items-center gap-2 px-4", bottom ? "pb-3 pt-1.5" : "py-4")}>
+      <div className={cn("flex items-center gap-2 px-4", bottom ? "pb-3 pt-1.5" : "py-4 [@media(pointer:coarse)]:py-2")}>
         {leftAction && <div className="shrink-0">{leftAction}</div>}
         <div className="min-w-0 flex-1">
           {title && (

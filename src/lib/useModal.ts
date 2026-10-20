@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import { useDismissLayer } from "./layers";
 
 const FOCUSABLE = 'input, textarea, select, [data-autofocus], a[href], button:not([data-modal-chrome])';
@@ -14,6 +14,10 @@ export function useModal(
   { lockScroll = true }: { lockScroll?: boolean } = {},
 ) {
   useDismissLayer(open, onClose);
+  const close = useRef(onClose);
+  useLayoutEffect(() => {
+    close.current = onClose;
+  });
   useEffect(() => {
     if (!open) return;
     const opener = document.activeElement as HTMLElement | null;
@@ -21,7 +25,7 @@ export function useModal(
     if (lockScroll) document.body.style.overflow = "hidden";
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") close.current();
       if (event.key === "Tab" && panelRef.current) {
         const nodes = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE + ", [data-modal-chrome]")).filter(
           (node) => !node.hasAttribute("disabled"),
@@ -59,5 +63,5 @@ export function useModal(
       if (lockScroll) document.body.style.overflow = previousOverflow;
       opener?.focus?.({ preventScroll: true });
     };
-  }, [open, onClose, panelRef, lockScroll]);
+  }, [open, panelRef, lockScroll]);
 }

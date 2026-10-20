@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import { Minus, Plus } from "lucide-react";
 import { cn } from "../lib/cn";
 import { useFieldContext } from "./Field";
@@ -22,7 +22,8 @@ export interface NumberInputProps {
 
 /**
  * A number field with real steppers. Arrow keys step, Shift+Arrow steps by ten,
- * and the value is clamped on commit rather than silently accepting nonsense.
+ * typing keeps the text as typed (only an in-range number reaches onChange) and the
+ * value is clamped on blur or Enter, so a half-typed number never snaps to the minimum.
  */
 export function NumberInput({
   value, onChange, min = -Infinity, max = Infinity, step = 1, precision, suffix, disabled, id, className,
@@ -30,6 +31,7 @@ export function NumberInput({
   const { strings: t } = useCrispStrings();
   const field = useFieldContext();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [draft, setDraft] = useState<string | null>(null);
   const decimals = precision ?? (String(step).split(".")[1]?.length ?? 0);
 
   const clamp = (n: number) => Math.min(max, Math.max(min, n));
@@ -38,10 +40,28 @@ export function NumberInput({
     onChange(Number(clamp(n).toFixed(decimals)));
   };
 
+  const parse = (text: string) => Number(text.replace(",", "."));
+  const type = (text: string) => {
+    setDraft(text);
+    const n = parse(text);
+    if (text.trim() !== "" && !Number.isNaN(n) && n >= min && n <= max) onChange(Number(n.toFixed(decimals)));
+  };
+  const settle = () => {
+    if (draft === null) return;
+    const n = parse(draft);
+    setDraft(null);
+    if (draft.trim() !== "" && !Number.isNaN(n)) commit(n);
+  };
+
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      settle();
+      return;
+    }
     const delta = event.key === "ArrowUp" ? 1 : event.key === "ArrowDown" ? -1 : 0;
     if (!delta) return;
     event.preventDefault();
+    setDraft(null);
     commit(value + delta * step * (event.shiftKey ? 10 : 1));
   };
 
@@ -49,7 +69,7 @@ export function NumberInput({
     <div className={cn(inputSurface, "control-md flex items-center gap-1 px-1", disabled && "opacity-40", className)}>
       <button
         type="button"
-        onClick={() => commit(value - step)}
+        onClick={() => { setDraft(null); commit(value - step); }}
         disabled={disabled || value <= min}
         aria-label={t.numberInputDecrease}
         className="touch-target flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg disabled:pointer-events-none disabled:opacity-30"
@@ -61,17 +81,18 @@ export function NumberInput({
         id={id ?? field?.id}
         type="text"
         inputMode="decimal"
-        value={value.toFixed(decimals)}
+        value={draft ?? value.toFixed(decimals)}
         disabled={disabled}
         aria-describedby={field?.describedBy}
-        onChange={(event) => commit(Number(event.target.value.replace(",", ".")))}
+        onChange={(event) => type(event.target.value)}
+        onBlur={settle}
         onKeyDown={onKeyDown}
         className="min-w-0 flex-1 bg-transparent text-center text-base tabular-nums text-fg outline-none"
       />
       {suffix && <span className="shrink-0 pr-1 text-sm text-fg-3">{suffix}</span>}
       <button
         type="button"
-        onClick={() => commit(value + step)}
+        onClick={() => { setDraft(null); commit(value + step); }}
         disabled={disabled || value >= max}
         aria-label={t.numberInputIncrease}
         className="touch-target flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-fg-3 transition-colors hover:bg-fill-2 hover:text-fg disabled:pointer-events-none disabled:opacity-30"

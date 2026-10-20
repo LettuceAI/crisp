@@ -358,7 +358,7 @@ export function Sheet({
       {...dragHandlers(true)}
       className={cn(
         "scrollbar-thin min-h-0 overflow-y-auto overscroll-contain px-5 py-4",
-        steps ? "flex-1" : "shrink",
+        steps || resolved === "side" ? "flex-1" : "shrink",
         /* A body with nothing to scroll is part of the handle: the whole sheet can be
            taken hold of, as on the platform. One that scrolls keeps its pan. Text
            fields keep theirs either way, so a long draft can still be scrolled. */

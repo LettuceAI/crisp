@@ -202,7 +202,7 @@ export function Toaster({ position = "bottom-center", bottomInset = 0 }: Toaster
       visibleToasts={3}
       /* Sonner stacks by default and only expands on hover, which a phone never gets. */
       expand
-      offset={{ bottom: `calc(env(safe-area-inset-bottom) + ${16 + bottomInset}px)`, top: 16, left: 16, right: 16 }}
+      offset={{ bottom: `calc(env(safe-area-inset-bottom) + ${16 + bottomInset}px)`, top: "calc(env(safe-area-inset-top) + 16px)", left: 16, right: 16 }}
       toastOptions={{ unstyled: true, classNames: { toast: "w-full" } }}
       style={{ ["--width" as string]: "384px" }}
     />

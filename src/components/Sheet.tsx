@@ -154,7 +154,7 @@ export function Sheet({
   /* No detents means the sheet hugs its content, capped so it can never swallow the
      screen. A six-row menu is six rows tall. */
   const steps = detents?.length ? detents : null;
-  const height = steps ? `${Math.round(steps[Math.min(detent, steps.length - 1)] * 100)}${unit}` : undefined;
+  const height = steps ? `calc(${Math.round(steps[Math.min(detent, steps.length - 1)] * 100)}${unit} - var(--safe-top, 0px))` : undefined;
 
   /* ── the bottom sheet's motion ──────────────────────────────────────────────
      One number drives everything: `y`, how far the sheet is below where it rests.
@@ -425,7 +425,7 @@ export function Sheet({
         className={cn(
           shared,
           side
-            ? cn("fixed inset-y-0 right-0 z-50 w-full border-l shadow-sheet pb-[var(--safe-bottom)]", sideWidth[size])
+            ? cn("fixed inset-y-0 right-0 z-50 w-full border-l shadow-sheet pt-[var(--safe-top)] pb-[var(--safe-bottom)]", sideWidth[size])
             : cn("relative z-50 w-full rounded-2xl border shadow-raised", framed ? "max-h-[85%]" : "max-h-[85dvh]", centerWidth[size]),
           className,
         )}

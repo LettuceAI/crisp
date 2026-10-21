@@ -18,6 +18,7 @@ export * from "./Checkbox";
 export * from "./Chip";
 export * from "./CodeBlock";
 export * from "./Collapsible";
+export * from "./ConnectedTree";
 export * from "./ColorPicker";
 export * from "./Combobox";
 export * from "./CommandPalette";

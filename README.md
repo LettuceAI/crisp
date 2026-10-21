@@ -75,7 +75,7 @@ For notifications, mount `Toaster` once at the application root and call `toast.
 | Forms | `Field`, `Input`, `Select`, `Combobox`, `Checkbox`, `Switch`, `DatePicker` |
 | Overlays | `Sheet`, `Dialog`, `Popover`, `Menu`, `CommandPalette` |
 | Feedback | `Alert`, `Banner`, `Toaster`, `Progress`, `Skeleton`, `EmptyState` |
-| Data and content | `Table`, `Tree`, `VirtualList`, `Chart`, `Prose`, `CodeBlock` |
+| Data and content | `Table`, `Tree`, `ConnectedTree`, `VirtualList`, `Chart`, `Prose`, `CodeBlock` |
 | Media and chat | `MediaCard`, `ImageViewer`, `AudioItem`, `Message`, `Composer`, `AvatarPicker` |
 | Flows and setup | `Wizard`, `ActionBar`, `Page`, `ChoiceCard`, `SecretInput`, `ModelSelect`, `ReorderableList` |
 

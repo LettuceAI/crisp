@@ -184,6 +184,7 @@ export const groups: Group[] = [
     ["StatTile", "KeyValue"],
     "Table",
     "Tree",
+    "ConnectedTree",
     "Timeline",
     "VirtualList",
     "InfiniteScroll",

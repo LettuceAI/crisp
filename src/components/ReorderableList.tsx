@@ -1,4 +1,4 @@
-import { type KeyboardEvent, type ReactNode } from "react";
+import { useState, type KeyboardEvent, type ReactNode } from "react";
 import { Reorder, useDragControls, useReducedMotion } from "framer-motion";
 import { GripVertical } from "lucide-react";
 import { cn } from "../lib/cn";
@@ -65,6 +65,7 @@ function Item<T>({
 }) {
   const { strings: t } = useCrispStrings();
   const controls = useDragControls();
+  const [lifted, setLifted] = useState(false);
   const reduced = useReducedMotion();
   const onKey = (e: KeyboardEvent) => {
     if (!e.altKey) return;
@@ -91,7 +92,9 @@ function Item<T>({
       dragControls={controls}
       layout
       transition={reduced ? { duration: 0 } : m.settle}
-      whileDrag={{ scale: 1.02, boxShadow: "var(--shadow-raised)", zIndex: 1 }}
+      onDragStart={() => setLifted(true)}
+      onDragEnd={() => setLifted(false)}
+      animate={lifted ? { scale: 1.02, boxShadow: "var(--shadow-raised)", zIndex: 1 } : { scale: 1, boxShadow: "0 0 0 0 transparent", zIndex: 0 }}
       className={cn("relative rounded-2xl", className)}
     >
       {children(item, handle, index)}

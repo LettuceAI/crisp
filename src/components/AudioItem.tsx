@@ -11,6 +11,7 @@ export interface AudioItemProps {
   src?: string | null;
   /** Called the first time play is pressed, to fetch the data lazily. */
   onLoadSrc?: () => Promise<string>;
+  onPlaybackError?: (error: unknown) => void;
   badge?: { label: string; tone?: BadgeTone };
   /** Trailing slot — an overflow menu. */
   actions?: ReactNode;
@@ -26,7 +27,7 @@ function formatTime(value: number) {
  * A clip in the audio library. The scrub bar is a real range input, so it is
  * keyboard- and screen-reader-operable — the app's version is a div with onClick.
  */
-export function AudioItem({ title, description, src: srcProp, onLoadSrc, badge, actions, className }: AudioItemProps) {
+export function AudioItem({ title, description, src: srcProp, onLoadSrc, onPlaybackError, badge, actions, className }: AudioItemProps) {
   const { strings: t } = useCrispStrings();
   const audioRef = useRef<HTMLAudioElement>(null);
   const wantPlay = useRef(false);
@@ -40,6 +41,18 @@ export function AudioItem({ title, description, src: srcProp, onLoadSrc, badge, 
     if (srcProp !== undefined) setSrc(srcProp);
   }, [srcProp]);
 
+  const failed = useCallback((error: unknown) => {
+    wantPlay.current = false;
+    setLoading(false);
+    setPlaying(false);
+    if (onLoadSrc) {
+      setSrc(srcProp ?? null);
+      setCurrent(0);
+      setDuration(0);
+    }
+    onPlaybackError?.(error);
+  }, [onLoadSrc, onPlaybackError, srcProp]);
+
   const toggle = useCallback(async () => {
     if (!src) {
       if (loading || !onLoadSrc) return;
@@ -47,17 +60,16 @@ export function AudioItem({ title, description, src: srcProp, onLoadSrc, badge, 
       setLoading(true);
       try {
         setSrc(await onLoadSrc());
-      } catch {
-        wantPlay.current = false;
-        setLoading(false);
+      } catch (error) {
+        failed(error);
       }
       return;
     }
     const el = audioRef.current;
     if (!el) return;
     if (playing) el.pause();
-    else void el.play().catch(() => setPlaying(false));
-  }, [src, loading, onLoadSrc, playing]);
+    else void el.play().catch(failed);
+  }, [src, loading, onLoadSrc, playing, failed]);
 
   const seek = (value: number) => {
     const el = audioRef.current;
@@ -79,13 +91,14 @@ export function AudioItem({ title, description, src: srcProp, onLoadSrc, badge, 
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onEnded={() => setPlaying(false)}
+        onError={(event) => failed(event.currentTarget.error)}
         onTimeUpdate={(e) => setCurrent(e.currentTarget.currentTime)}
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
         onCanPlay={() => {
           if (!wantPlay.current) return;
           wantPlay.current = false;
           setLoading(false);
-          void audioRef.current?.play().catch(() => setPlaying(false));
+          void audioRef.current?.play().catch(failed);
         }}
       />
 

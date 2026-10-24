@@ -49,7 +49,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
           "transition-[border-color,background-color] motion-instant",
           "hover:border-line-2 focus:border-accent focus:bg-fill-2 focus:outline-none focus:ring-1 focus:ring-accent/35",
           "[&::-webkit-search-cancel-button]:hidden",
-          size === "sm" ? "h-8 pl-8 pr-8 text-sm" : "h-10 pl-9 pr-9 text-base",
+          size === "sm" ? "control-sm pl-8 pr-8 text-sm" : "control-md pl-9 pr-9 text-base",
           className,
         )}
         {...rest}

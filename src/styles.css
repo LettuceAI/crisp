@@ -239,7 +239,13 @@ select.focus-ring:focus-visible {
 
   /* Controls take their height from the density scale, never a literal. */
   .control-sm { height: var(--control-sm); }
-  .control-md { height: var(--control-md); }
+  .control-md {
+    height: var(--control-md);
+    @media (pointer: coarse) {
+      height: max(var(--control-md), 44px);
+    }
+  }
+  [data-coarse] .control-md { height: max(var(--control-md), 44px); }
   .control-lg { height: var(--control-lg); }
   .row-py { padding-block: var(--row-py); }
   .card-p { padding: var(--card-p); }

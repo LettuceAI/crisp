@@ -26,4 +26,12 @@ describe("InlineMarkdown", () => {
     expect(out).toContain("one");
     expect(out).toContain("site");
   });
+
+  it("marks dialogue only when asked", () => {
+    const text = 'She looks up. "You\'re late." *“Again,”* she adds.';
+    expect(html(text)).not.toContain("data-quote");
+    const out = renderToStaticMarkup(<InlineMarkdown quotes>{text}</InlineMarkdown>);
+    expect(out).toContain('<span data-quote="">&quot;You&#x27;re late.&quot;</span>');
+    expect(out).toContain('<em><span data-quote="">“Again,”</span></em>');
+  });
 });

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { Brain, ChevronDown, Clapperboard, Info, Pin } from "lucide-react";
 import { cn } from "../lib/cn";
@@ -25,6 +25,22 @@ export interface MessageAppearance {
   avatarSize?: "small" | "medium" | "large";
   /** Where the byline sits. `below` puts it under the bubble with the timestamp. */
   headerPlacement?: "below" | "outside" | "inside";
+  /** Hide the name without hiding the avatar. */
+  showAuthor?: boolean;
+  showTimestamp?: boolean;
+  /** Space above each run of messages from one author. */
+  gap?: "tight" | "normal" | "relaxed";
+  /** Bubble tints, any CSS colour. Unset, the user's bubble takes the accent and the other a neutral fill. */
+  userColor?: string;
+  assistantColor?: string;
+  /** Text colours by kind. `message` is the fallback for the rest; `quote` colours dialogue marked by InlineMarkdown's `quotes`. */
+  textColors?: { message?: string; plain?: string; italic?: string; quote?: string; code?: string };
+  /** Where `details` sits relative to the byline and the bubble. */
+  detailsPlacement?: "belowHeader" | "belowHeaderOutside" | "insideBubble" | "belowBubble";
+  detailsSize?: "small" | "medium" | "large";
+  /** Glass bubbles over a background image: fill strength from 20 to 100, and how much they blur behind. */
+  bubbleOpacity?: number;
+  bubbleBlur?: "none" | "light" | "medium" | "heavy";
 }
 
 export interface MessageVariants {
@@ -71,6 +87,8 @@ export interface MessageProps {
   /** Force the held look — for a menu you control yourself. */
   held?: boolean;
   appearance?: MessageAppearance;
+  /** A quiet line of facts about the reply — model, token counts, speed. */
+  details?: ReactNode;
   className?: string;
 }
 
@@ -93,8 +111,12 @@ const maxWidth = {
 };
 const padding = { compact: "px-3 py-2", normal: "px-4 py-2.5", spacious: "px-5 py-3.5" };
 const avatarSize = { small: "xs", medium: "sm", large: "md" } as const;
+const runGap = { tight: "mt-2", normal: "mt-3.5", relaxed: "mt-5" };
+const detailsSize = { small: "text-2xs", medium: "text-xs", large: "text-sm" };
+const blurClass = { none: null, light: "backdrop-blur-sm", medium: "backdrop-blur-md", heavy: "backdrop-blur-xl" };
+const tintMix = (color: string, pct: number) => `color-mix(in oklab, ${color} ${pct}%, transparent)`;
 
-const DEFAULTS: Required<Omit<MessageAppearance, never>> = {
+const DEFAULTS: Required<Omit<MessageAppearance, "userColor" | "assistantColor" | "textColors">> = {
   fontSize: "medium",
   lineSpacing: "relaxed",
   radius: "rounded",
@@ -104,11 +126,18 @@ const DEFAULTS: Required<Omit<MessageAppearance, never>> = {
   avatar: "circle",
   avatarSize: "medium",
   headerPlacement: "below",
+  showAuthor: true,
+  showTimestamp: true,
+  gap: "relaxed",
+  detailsPlacement: "belowBubble",
+  detailsSize: "small",
+  bubbleOpacity: 35,
+  bubbleBlur: "medium",
 };
 
 export function Message({
   role, children, author, timestamp, state = "idle", reasoning, attachments,
-  variants, group = "only", pinned, held, menu, menuTitle, onMenu, appearance, className,
+  variants, group = "only", pinned, held, menu, menuTitle, onMenu, appearance, details, className,
 }: MessageProps) {
   const { strings: t } = useCrispStrings();
   const a = { ...DEFAULTS, ...appearance };
@@ -150,21 +179,45 @@ export function Message({
   /* Scene and system are narrated rather than spoken, but they are still messages:
      same row, same bubble, same menu and variants. Only the byline changes. */
   const narration = role === "scene" || role === "system";
-  const byline = author?.name ?? (role === "scene" ? t.messageScene : role === "system" ? t.messageSystem : undefined);
+  const byline = a.showAuthor ? author?.name ?? (role === "scene" ? t.messageScene : role === "system" ? t.messageSystem : undefined) : undefined;
+  const time = a.showTimestamp ? timestamp : undefined;
+
+  const tint = mine ? a.userColor : a.assistantColor;
+  const op = Math.min(100, Math.max(0, a.bubbleOpacity));
+  const tc = a.textColors ?? {};
+  const italic = tc.italic ?? tc.message;
+  const quote = tc.quote ?? tc.message;
+  const code = tc.code ?? tc.message;
+  const bubbleStyle: CSSProperties = {
+    ...(tc.plain ?? tc.message ? { color: tc.plain ?? tc.message } : undefined),
+    ...(italic ? { "--message-italic": italic } : undefined),
+    ...(quote ? { "--message-quote": quote } : undefined),
+    ...(code ? { "--message-code": code } : undefined),
+    ...(!narration && a.style === "filled"
+      ? glass
+        ? {
+            backgroundColor: mine || tint
+              ? tintMix(tint ?? "var(--color-accent)", surfaceTone === "light" ? Math.min(100, op + 5) : op)
+              : surfaceTone === "light" ? `rgb(255 255 255 / ${Math.min(100, op + 20) / 100})` : `rgb(0 0 0 / ${op / 100})`,
+          }
+        : tint ? { backgroundColor: tintMix(tint, 22) } : undefined
+      : undefined),
+    ...(!narration && a.style === "bordered" && tint ? { borderColor: tintMix(tint, 40) } : undefined),
+  } as CSSProperties;
 
   const showAvatar = a.avatar !== "hidden" && Boolean(author) && !narration && showsAvatar;
   /* An empty meta line still costs the column gap, so only draw it when it holds something. */
   const hasMeta =
-    (showsByline && a.headerPlacement === "below" && Boolean(byline || timestamp)) ||
+    (showsByline && a.headerPlacement === "below" && Boolean(byline || time)) ||
     (Boolean(pinned) && a.headerPlacement === "below");
-  const header = showsByline && (byline || timestamp) && (
+  const header = showsByline && (byline || time) && (
     <div className={cn("flex items-baseline gap-2", mine && "flex-row-reverse")}>
       {byline && (
         <span className={cn("truncate text-sm font-medium", narration && !author ? "text-fg-3" : "text-fg-2")}>
           {byline}
         </span>
       )}
-      {timestamp && <span className="shrink-0 text-2xs tabular-nums text-fg-3">{timestamp}</span>}
+      {time && <span className="shrink-0 text-2xs tabular-nums text-fg-3">{time}</span>}
       {pinned && (
         <span className="inline-flex shrink-0 items-center gap-1 text-2xs text-info" aria-label={t.messagePinned}>
           <Pin size={12} />
@@ -172,6 +225,10 @@ export function Message({
         </span>
       )}
     </div>
+  );
+
+  const detailsLine = details && (
+    <div className={cn("flex flex-wrap gap-x-2 tabular-nums text-fg-3", detailsSize[a.detailsSize], mine && "justify-end")}>{details}</div>
   );
 
   const bubble = (
@@ -218,7 +275,7 @@ export function Message({
               role === "system" && "text-sm leading-normal",
               role === "system" && a.style !== "minimal" && "px-3 py-2",
               a.style !== "minimal" && radiusClass[a.radius],
-              glass && a.style !== "minimal" && "backdrop-blur-md",
+              glass && a.style !== "minimal" && blurClass[a.bubbleBlur],
               a.style === "filled" &&
                 (glass
                   ? surfaceTone === "light"
@@ -234,9 +291,8 @@ export function Message({
               a.style !== "minimal" && radiusClass[a.radius],
               a.style === "minimal" && "text-fg",
               a.style === "filled" && (mine ? "bg-accent/22 text-fg" : "bg-fill-2 text-fg"),
-              glass && a.style !== "minimal" && "backdrop-blur-md",
-              glass && a.style === "filled" && surfaceTone === "dark" && (mine ? "bg-accent/35" : "border border-white/10 bg-black/35"),
-              glass && a.style === "filled" && surfaceTone === "light" && (mine ? "bg-accent/40" : "border border-black/10 bg-white/55"),
+              glass && a.style !== "minimal" && blurClass[a.bubbleBlur],
+              glass && a.style === "filled" && !mine && (surfaceTone === "dark" ? "border border-white/10" : "border border-black/10"),
               a.style === "bordered" && (mine ? "border border-accent/40 text-fg" : "border border-line-2 text-fg"),
               mine && "ml-auto",
             ),
@@ -244,15 +300,21 @@ export function Message({
            Last in the list so it wins over the padding preset. */
         swipeable && "pb-6",
         isHeld && "ring-2 ring-accent/50",
+        italic && "[&_em]:[color:var(--message-italic)]",
+        quote && "[&_[data-quote]]:[color:var(--message-quote)]",
+        code && "[&_code]:[color:var(--message-code)]",
       )}
+      style={bubbleStyle}
     >
       {a.headerPlacement === "inside" && header && <div className="mb-1.5">{header}</div>}
+      {a.detailsPlacement === "belowHeader" && detailsLine && <div className="mb-1.5">{detailsLine}</div>}
       {attachments && <div className="mb-2">{attachments}</div>}
 
       {state === "typing" ? <TypingDots /> : children}
       {state === "streaming" && (
         <span aria-hidden="true" className="ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em] animate-pulse bg-accent" />
       )}
+      {a.detailsPlacement === "insideBubble" && detailsLine && <div className="mt-1.5">{detailsLine}</div>}
 
       {swipeable && (
         <span
@@ -273,7 +335,7 @@ export function Message({
       {...(openMenu ? longPress.handlers : {})}
       className={cn(
         "group/message flex w-full gap-2",
-        group === "start" || group === "only" ? "mt-5 first:mt-0" : "mt-1",
+        group === "start" || group === "only" ? cn(runGap[a.gap], "first:mt-0") : "mt-1",
         mine ? "flex-row-reverse" : "flex-row",
         className,
       )}
@@ -306,21 +368,23 @@ export function Message({
 
       <div className={cn("flex min-w-0 flex-1 flex-col gap-0.5", mine && "items-end")}>
         {a.headerPlacement === "outside" && header}
+        {a.detailsPlacement === "belowHeaderOutside" && detailsLine}
         {reasoning && (
           <Reasoning label={reasoning.label} align={mine ? "end" : "start"}>
             {reasoning.text}
           </Reasoning>
         )}
         {bubble}
+        {a.detailsPlacement === "belowBubble" && detailsLine}
 
         {/* Byline, pin and version counter, on one quiet line under the bubble. Nothing
             else lives here — the actions are in the bottom menu, one gesture away. */}
         {hasMeta && (
           <div className={cn("flex items-center gap-2", mine && !narration && "flex-row-reverse")}>
-            {showsByline && a.headerPlacement === "below" && byline && (
+            {showsByline && a.headerPlacement === "below" && (byline || time) && (
               <span className="truncate text-2xs text-fg-3">
                 {byline}
-                {timestamp && <span className="ml-1.5 tabular-nums text-fg-3">{timestamp}</span>}
+                {time && <span className={cn("tabular-nums text-fg-3", byline && "ml-1.5")}>{time}</span>}
               </span>
             )}
             {pinned && (

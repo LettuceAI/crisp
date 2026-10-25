@@ -34,13 +34,17 @@ export interface SurfaceProps {
   /** Optional explicit secondary colour; otherwise derived from `fg`. */
   fgMuted?: string | null;
   /**
-   * How far to push the art away from the text. The image itself is never blurred —
-   * the picture is the point. The chrome above it frosts instead.
+   * How far to push the art away from the text. The image itself is not blurred unless
+   * `blur` asks for it — the picture is the point. The chrome above it frosts instead.
    *
    * The veil follows the image: dark art gets a black veil, light art a white one, so
    * a bright photograph does not leave white text sitting on white.
    */
   scrim?: "none" | "soft" | "auto" | "strong";
+  /** An exact veil strength, 0 to 100, in place of `scrim` — for a person's own dim setting. */
+  dim?: number;
+  /** Blur the image by this many pixels. Off by default; only a person's own setting turns it on. */
+  blur?: number;
   /**
    * Skip measuring and state the art's tone yourself — the app already computes this
    * when it extracts an avatar's gradient.
@@ -71,7 +75,7 @@ const LIGHT_THRESHOLD = 0.42;
  * four times in one card.
  */
 export const Surface = forwardRef<HTMLElement, SurfaceProps>(function Surface(
-  { image, imagePosition, tint, fg, fgMuted, scrim = "auto", tone: toneProp, as, className, style, children },
+  { image, imagePosition, tint, fg, fgMuted, scrim = "auto", dim, blur, tone: toneProp, as, className, style, children },
   ref,
 ) {
   const Tag = (as ?? "div") as ElementType;
@@ -111,23 +115,37 @@ export const Surface = forwardRef<HTMLElement, SurfaceProps>(function Surface(
     <SurfaceContext.Provider value={{ hasBackground: painted, tone }}>
       <Tag
         ref={ref}
-        className={cn("relative isolate", className)}
+        className={cn("relative isolate", blur ? "overflow-hidden" : undefined, className)}
         style={{ ...vars, ...(tint && !image ? { background: tint } : undefined), ...style }}
       >
         {image && (
           /* An <img>, not a CSS background: an unquoted url() breaks on any URL
              containing parentheses — which a data URI routinely does — and fails
-             silently. It is also never blurred; the picture is the point. */
+             silently. It is only blurred when `blur` asks; the picture is the point. */
           <img
             src={image}
             alt=""
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover"
-            style={{ objectPosition: imagePosition, ...(tint ? { backgroundColor: tint } : undefined) }}
+            style={{
+              objectPosition: imagePosition,
+              ...(tint ? { backgroundColor: tint } : undefined),
+              ...(blur ? { filter: `blur(${blur}px)`, transform: `scale(${1 + blur / 100})` } : undefined),
+            }}
           />
         )}
-        {painted && scrimClass[tone][scrim] && (
-          <span aria-hidden="true" className={cn("pointer-events-none absolute inset-0 -z-10", scrimClass[tone][scrim])} />
+        {painted && dim !== undefined ? (
+          dim > 0 && (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 -z-10"
+              style={{ backgroundColor: tone === "light" ? `rgb(255 255 255 / ${dim / 100})` : `rgb(0 0 0 / ${dim / 100})` }}
+            />
+          )
+        ) : (
+          painted && scrimClass[tone][scrim] && (
+            <span aria-hidden="true" className={cn("pointer-events-none absolute inset-0 -z-10", scrimClass[tone][scrim])} />
+          )
         )}
         {children}
       </Tag>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, Check, ChevronsRight, Loader2, Mic, Plus, Square, X } from "lucide-react";
 import { cn } from "../lib/cn";
@@ -50,14 +50,25 @@ export interface ComposerProps {
   notice?: ReactNode;
   /** Slot inside the pill above the input — author's note, quick snippets. */
   topSlot?: ReactNode;
+  /** Size of the typed text. Follows the chat's text size so a reply and a draft read alike. */
+  fontSize?: "small" | "medium" | "large" | "xlarge";
+  /** Fill for the pill, any CSS colour. Kept slightly translucent so the frost still shows. */
+  color?: string;
   className?: string;
 }
+
+const composerText = {
+  small: { className: "text-sm", line: "1.25rem" },
+  medium: { className: "text-base", line: "1.25rem" },
+  large: { className: "text-lg", line: "1.5rem" },
+  xlarge: { className: "text-xl", line: "1.75rem" },
+} as const;
 
 type Action = "stop" | "send" | "busy" | "continue";
 
 export function Composer({
   value, onChange, onSend, onStop, onContinue, onSendAsSystem, onAttach, attachments = [], onRemoveAttachment,
-  mic, sending = false, disabled = false, placeholder, enterSends = true, notice, topSlot, className,
+  mic, sending = false, disabled = false, placeholder, enterSends = true, notice, topSlot, fontSize = "medium", color, className,
 }: ComposerProps) {
   const { strings: t } = useCrispStrings();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -116,6 +127,7 @@ export function Composer({
           "rounded-[26px] border border-line bg-surface-el/85 shadow-raised backdrop-blur-md transition-colors motion-instant",
           disabled && "opacity-60",
         )}
+        style={color ? { backgroundColor: `color-mix(in oklab, ${color} 85%, transparent)` } : undefined}
       >
         {topSlot && <div className="border-b border-line px-3 py-2">{topSlot}</div>}
 
@@ -165,7 +177,11 @@ export function Composer({
               /* One line is exactly as tall as the buttons beside it — both read
                  --composer-row — so under items-end the text and the icons share a
                  centre. At 40px against 44px buttons it sat 2px low. */
-              className="scrollbar-none min-h-[var(--composer-row)] flex-1 resize-none bg-transparent px-2 py-[calc((var(--composer-row)-1.25rem)/2)] text-base leading-5 text-fg outline-none placeholder:text-fg-3 disabled:cursor-not-allowed"
+              className={cn(
+                "scrollbar-none min-h-[var(--composer-row)] flex-1 resize-none bg-transparent px-2 py-[calc((var(--composer-row)-var(--composer-line))/2)] leading-[var(--composer-line)] text-fg outline-none placeholder:text-fg-3 disabled:cursor-not-allowed",
+                composerText[fontSize].className,
+              )}
+              style={{ "--composer-line": composerText[fontSize].line } as CSSProperties}
             />
           )}
 

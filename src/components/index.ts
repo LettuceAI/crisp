@@ -51,6 +51,7 @@ export * from "./MediaTile";
 export * from "./Menu";
 export * from "./Message";
 export * from "./Meter";
+export * from "./Scale";
 export * from "./MultiItemDownloadCard";
 export * from "./nav";
 export * from "./NavRail";

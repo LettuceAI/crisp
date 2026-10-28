@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, Check, ChevronsRight, Loader2, Mic, Plus, Square, X } from "lucide-react";
 import { cn } from "../lib/cn";
@@ -79,11 +79,15 @@ export function Composer({
   const action: Action = sending ? (onStop ? "stop" : "busy") : hasContent ? "send" : "continue";
   const actionDisabled = disabled || action === "busy" || (action === "continue" && !onContinue);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = textareaRef.current;
-    if (!el) return;
+    const box = el?.parentElement;
+    if (!el || !box) return;
+    const held = box.style.height;
+    box.style.height = `${box.offsetHeight}px`;
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+    box.style.height = held;
   }, [value]);
 
   const longPress = useLongPress(onSendAsSystem, { enabled: action === "send" && !disabled });

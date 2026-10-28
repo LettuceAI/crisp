@@ -104,6 +104,23 @@ interface DragState {
   /** Where the finger actually is, which the sheet does not follow above its rest. */
   dy: number;
   samples: { t: number; y: number }[];
+  /** The scrolling element the press landed in, the sheet's body or one inside it. */
+  scroller: HTMLElement | null;
+}
+
+function scrolls(element: HTMLElement) {
+  return element.scrollHeight > element.clientHeight + 1;
+}
+
+/** The nearest element between `target` and `body` that scrolls vertically, else `body` if it does. */
+function scrollerAt(target: EventTarget, body: HTMLElement | null): HTMLElement | null {
+  if (!body) return null;
+  for (let node = target instanceof Element ? target : null; node && node !== body; node = node.parentElement) {
+    if (!(node instanceof HTMLElement)) continue;
+    const overflow = getComputedStyle(node).overflowY;
+    if ((overflow === "auto" || overflow === "scroll") && scrolls(node)) return node;
+  }
+  return scrolls(body) ? body : null;
 }
 
 export function Sheet({
@@ -203,14 +220,32 @@ export function Sheet({
 
     /* Content can change while the sheet is up — keep the height the scrim and the
        dismissal measure against current, and know whether the body scrolls. */
-    const observer = new ResizeObserver(() => {
+    const body = bodyRef.current;
+    const measure = () => {
       sheetHeight.current = panel.offsetHeight;
-      const body = bodyRef.current;
-      setBodyScrolls(Boolean(body && body.scrollHeight > body.clientHeight + 1));
+      setBodyScrolls(Boolean(body && scrolls(body)));
+    };
+    /* Content that keeps growing once the body is at its tallest no longer resizes the
+       body, so its children are watched too, and replaced ones picked up as they come. */
+    const resize = new ResizeObserver(measure);
+    resize.observe(panel);
+    const watchContent = () => {
+      if (!body) return;
+      for (const child of Array.from(body.children)) resize.observe(child);
+    };
+    const mutation = new MutationObserver(() => {
+      watchContent();
+      measure();
     });
-    observer.observe(panel);
-    if (bodyRef.current) observer.observe(bodyRef.current);
-    return () => observer.disconnect();
+    if (body) {
+      resize.observe(body);
+      watchContent();
+      mutation.observe(body, { childList: true, subtree: true });
+    }
+    return () => {
+      resize.disconnect();
+      mutation.disconnect();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, bottom]);
 
@@ -228,7 +263,15 @@ export function Sheet({
     /* A press in a text field is selecting text, and one on a slider is moving it —
        neither is a request to move the sheet. `data-no-drag` opts anything else out. */
     if (fromBody && (event.target as HTMLElement).closest("input, textarea, select, [contenteditable='true'], [data-no-drag]")) return;
-    drag.current = { pointerId: event.pointerId, startY: event.clientY, fromBody, active: false, dy: 0, samples: [{ t: event.timeStamp, y: event.clientY }] };
+    drag.current = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      fromBody,
+      active: false,
+      dy: 0,
+      samples: [{ t: event.timeStamp, y: event.clientY }],
+      scroller: fromBody ? scrollerAt(event.target, bodyRef.current) : null,
+    };
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
@@ -238,10 +281,9 @@ export function Sheet({
 
     if (!d.active) {
       if (Math.abs(dy) < SLOP) return;
-      /* From the content, a drag belongs to the sheet only while there is nothing to
-         scroll back to — otherwise it is the list's. */
-      const body = bodyRef.current;
-      if (d.fromBody && bodyScrolls && (dy < 0 || (body?.scrollTop ?? 0) > 0)) {
+      /* From the content, a drag belongs to the sheet only while the list under the
+         finger, the body or one nested in it, has nothing to scroll back to. */
+      if (d.scroller && (dy < 0 || d.scroller.scrollTop > 0)) {
         drag.current = null;
         return;
       }

@@ -16,6 +16,7 @@ export interface CollapsibleProps {
   /** `panel` draws a bordered container; `plain` is just the toggle and its content. */
   variant?: "panel" | "plain";
   className?: string;
+  contentClassName?: string;
   children: ReactNode;
 }
 
@@ -25,7 +26,7 @@ export interface CollapsibleProps {
  */
 export function Collapsible({
   title, description, defaultOpen = false, open: openProp, onOpenChange,
-  trailing, variant = "panel", className, children,
+  trailing, variant = "panel", className, contentClassName, children,
 }: CollapsibleProps) {
   const id = useId();
   const [uncontrolled, setUncontrolled] = useState(defaultOpen);
@@ -73,7 +74,7 @@ export function Collapsible({
             transition={m.collapse}
             className="overflow-hidden"
           >
-            <div className={cn(variant === "panel" ? "border-t border-line px-4 py-3" : "pt-2 pl-6")}>{children}</div>
+            <div className={cn(variant === "panel" ? "border-t border-line px-4 py-3" : "pt-2 pl-6", contentClassName)}>{children}</div>
           </motion.div>
         )}
       </AnimatePresence>

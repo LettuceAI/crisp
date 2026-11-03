@@ -108,3 +108,5 @@ export * from "./Citation";
 export * from "./FeedbackAction";
 export * from "./PromptSuggestions";
 export * from "./OtpInput";
+
+export * from "./AvatarCropSheet";

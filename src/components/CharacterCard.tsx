@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react";
 import { cn } from "../lib/cn";
 import { motion as m } from "../lib/motion";
 import { tintFromName } from "../lib/tint";
+import { BANNER_ASPECT_RATIO } from "../lib/avatarCrop";
 import { Surface } from "./Surface";
 import { Skeleton } from "./Skeleton";
 
@@ -13,6 +14,7 @@ export interface CharacterCardProps extends Omit<HTMLMotionProps<"button">, "tit
   name: string;
   description?: ReactNode;
   avatar?: string | null;
+  banner?: string | null;
   /** CSS colour or gradient extracted from the avatar. Falls back to a tint from the name. */
   gradient?: string | null;
   /** Text colours that go with the gradient. */
@@ -36,12 +38,13 @@ export interface CharacterCardProps extends Omit<HTMLMotionProps<"button">, "tit
  * narrow pane on a wide monitor still gets the phone-sized card.
  */
 export const CharacterCard = forwardRef<HTMLButtonElement, CharacterCardProps>(function CharacterCard(
-  { name, description, avatar, gradient, fg, fgMuted, variant = "row", trailing, selected, initials, className, type = "button", ...rest },
+  { name, description, avatar, banner, gradient, fg, fgMuted, variant = "row", trailing, selected, initials, className, type = "button", ...rest },
   ref,
 ) {
-  const [broken, setBroken] = useState(false);
+  const source = variant === "banner" ? banner ?? avatar : avatar;
+  const [broken, setBroken] = useState<string | null>(null);
   const tint = gradient ?? tintFromName(name).background;
-  const showAvatar = Boolean(avatar) && !broken;
+  const showAvatar = Boolean(source) && broken !== source;
 
   const shell = cn(
     "group relative w-full overflow-hidden text-left",
@@ -58,17 +61,17 @@ export const CharacterCard = forwardRef<HTMLButtonElement, CharacterCardProps>(f
           {/* The cover fades into the gradient rather than ending on a hard edge. */}
           <span
             aria-hidden="true"
-            className="absolute inset-y-0 left-0 w-3/5 max-w-[420px] overflow-hidden @3xl:w-1/2"
-            style={{ maskImage: "linear-gradient(to right, black 55%, transparent)", WebkitMaskImage: "linear-gradient(to right, black 55%, transparent)" }}
+            className="absolute inset-y-0 left-0 overflow-hidden"
+            style={{ aspectRatio: BANNER_ASPECT_RATIO, maskImage: "linear-gradient(to right, black 55%, transparent)", WebkitMaskImage: "linear-gradient(to right, black 55%, transparent)" }}
           >
             {showAvatar && (
               <img
-                src={avatar!}
+                src={source!}
                 alt=""
                 loading="lazy"
                 decoding="async"
-                onError={() => setBroken(true)}
-                className="h-full w-full scale-[1.14] object-cover transition-transform motion-slow ease-out group-hover:-translate-x-3"
+                onError={() => setBroken(source ?? null)}
+                className="h-full w-full object-cover"
               />
             )}
           </span>
@@ -87,7 +90,7 @@ export const CharacterCard = forwardRef<HTMLButtonElement, CharacterCardProps>(f
       <Surface tint={tint} fg={fg} fgMuted={fgMuted} scrim="none" className="flex w-full items-center gap-3.5 p-3.5 @3xl:gap-6 @3xl:p-6">
         <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-line-3 @3xl:h-24 @3xl:w-24">
           {showAvatar ? (
-            <img src={avatar!} alt="" loading="lazy" decoding="async" onError={() => setBroken(true)} className="h-full w-full object-cover" />
+            <img src={source!} alt="" loading="lazy" decoding="async" onError={() => setBroken(source ?? null)} className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full w-full items-center justify-center bg-fill-2 text-lg font-semibold text-fg-2">
               {initials ?? name.slice(0, 2).toUpperCase()}

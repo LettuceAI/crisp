@@ -20,6 +20,14 @@ export interface CrispStrings {
   avatarPickerCancel: string;
   avatarPickerUse: string;
   avatarPickerZoom: string;
+  avatarPickerReset: string;
+  avatarPickerRetry: string;
+  avatarPickerLoadError: string;
+  avatarPickerZoomIn: string;
+  avatarPickerZoomOut: string;
+  avatarPickerCenter: string;
+  avatarPickerArea: string;
+  avatarPickerKeyboardHint: string;
   bannerDismiss: string;
   breadcrumbLabel: string;
   breadcrumbMore: (count: number) => string;
@@ -223,10 +231,18 @@ export const englishStrings: CrispStrings = {
   avatarGroupPeople: (count) => `${count} ${count === 1 ? "person" : "people"}`,
   avatarPickerRemove: "Remove picture",
   avatarPickerTitle: "Frame the picture",
-  avatarPickerDescription: "Drag to move, slide to zoom. What's in the circle is the avatar.",
+  avatarPickerDescription: "Drag to move. Pinch or scroll to zoom.",
   avatarPickerCancel: "Cancel",
   avatarPickerUse: "Use picture",
   avatarPickerZoom: "Zoom",
+  avatarPickerReset: "Reset",
+  avatarPickerRetry: "Try again",
+  avatarPickerLoadError: "Could not load the picture",
+  avatarPickerZoomIn: "Zoom in",
+  avatarPickerZoomOut: "Zoom out",
+  avatarPickerCenter: "Center",
+  avatarPickerArea: "Framing area",
+  avatarPickerKeyboardHint: "Arrow keys move the picture. Plus and minus zoom, C centers, 0 resets.",
   bannerDismiss: "Dismiss",
   breadcrumbLabel: "Breadcrumb",
   breadcrumbMore: (count) => `${count} more levels`,

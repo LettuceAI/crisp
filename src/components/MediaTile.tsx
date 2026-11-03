@@ -14,7 +14,7 @@ export interface MediaTileProps extends Omit<HTMLMotionProps<"button">, "title" 
   /** Number of variants stacked under this one. */
   variantCount?: number;
   selected?: boolean;
-  aspect?: "square" | "portrait";
+  aspect?: "square" | "portrait" | "auto";
 }
 
 /**
@@ -39,7 +39,7 @@ export const MediaTile = forwardRef<HTMLButtonElement, MediaTileProps>(function 
         "group relative w-full overflow-hidden rounded-xl border border-line bg-fill",
         "transition-colors motion-instant hover:border-line-3",
         selected && "ring-2 ring-inset ring-fg/45",
-        aspect === "square" ? "aspect-square" : "aspect-3/4",
+        aspect === "square" ? "aspect-square" : aspect === "portrait" ? "aspect-3/4" : undefined,
         className,
       )}
       {...rest}
@@ -53,7 +53,7 @@ export const MediaTile = forwardRef<HTMLButtonElement, MediaTileProps>(function 
           loading="lazy"
           decoding="async"
           onError={() => setBroken(true)}
-          className="h-full w-full object-cover transition-transform motion-slow ease-out group-hover:scale-[1.04]"
+          className={cn("w-full transition-transform motion-slow ease-out group-hover:scale-[1.04]", aspect === "auto" ? "h-auto max-h-80 object-contain" : "h-full object-cover")}
         />
       )}
       {kind && (

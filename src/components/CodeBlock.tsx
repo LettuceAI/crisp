@@ -1,9 +1,11 @@
 import { cn } from "../lib/cn";
 import { CopyButton } from "./CopyButton";
+import { Highlight } from "./Highlight";
 import { ScrollArea } from "./ScrollArea";
 
 export interface CodeBlockProps {
   code: string;
+  query?: string;
   /** Shown in the header — a filename, a language, "Response". */
   label?: string;
   /** Wrap long lines instead of scrolling. Good for prompts, bad for JSON. */
@@ -18,7 +20,7 @@ export interface CodeBlockProps {
  * Monospace content with a copy button: prompt templates, raw payloads, error bodies.
  * Long lines scroll inside the block, so the page never scrolls sideways because of it.
  */
-export function CodeBlock({ code, label, wrap, lineNumbers, maxHeight = 320, className }: CodeBlockProps) {
+export function CodeBlock({ code, query, label, wrap, lineNumbers, maxHeight = 320, className }: CodeBlockProps) {
   const lines = code.split("\n");
   return (
     <div className={cn("overflow-hidden rounded-xl border border-line bg-surface-1", className)}>
@@ -39,12 +41,12 @@ export function CodeBlock({ code, label, wrap, lineNumbers, maxHeight = 320, cla
               {lines.map((line, i) => (
                 <span key={i} className="contents">
                   <span className="select-none text-right tabular-nums text-fg-3">{i + 1}</span>
-                  <span>{line || " "}</span>
+                  <span>{query ? <Highlight query={query}>{line || " "}</Highlight> : line || " "}</span>
                 </span>
               ))}
             </code>
           ) : (
-            <code>{code}</code>
+            <code>{query ? <Highlight query={query}>{code}</Highlight> : code}</code>
           )}
         </pre>
       </ScrollArea>

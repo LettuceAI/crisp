@@ -1,7 +1,8 @@
-import { Children, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "../lib/cn";
+import { markQuotes } from "../lib/mark-quotes";
 
 export interface InlineMarkdownProps {
   children: string;
@@ -15,16 +16,6 @@ const allowed = ["p", "strong", "em", "del", "code", "a", "br", "ul", "ol", "li"
 /** ATX headings kept as text: the first `#` of a heading line is escaped. */
 export function escapeHeadings(text: string): string {
   return text.replace(/^( {0,3})#(?=#{0,5}(?:\s|$))/gm, "$1\\#");
-}
-
-const QUOTE = /("[^"\n]*"|“[^”\n]*”|«[^»\n]*»)/g;
-
-function markQuotes(children: ReactNode): ReactNode {
-  return Children.map(children, (child) =>
-    typeof child === "string"
-      ? child.split(QUOTE).map((part, i) => (i % 2 ? <span key={i} data-quote="">{part}</span> : part))
-      : child,
-  );
 }
 
 /**

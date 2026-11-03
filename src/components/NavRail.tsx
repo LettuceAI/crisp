@@ -120,21 +120,21 @@ function DockedNav<T extends string>({
         animate={{ width }}
         transition={reduced ? { duration: 0 } : m.sidebar}
         className={cn(
-          "z-30 flex h-full shrink-0 flex-col gap-1 bg-nav px-2.5 py-3 text-fg",
+          "z-30 flex h-full shrink-0 flex-col gap-1 bg-nav px-2.5 pt-3 pb-2 text-fg",
           side === "left" ? "border-r border-line" : "border-l border-line",
           className,
         )}
       >
         {onCreate && (
-          <Tooltip content={createLabel ?? t.navCreate} placement={tip} disabled={open} className="flex w-full">
+          <Tooltip content={createLabel ?? t.navCreate} placement={tip} disabled={open} className="flex w-full justify-center px-0.5">
             <motion.button
               type="button"
               whileTap={{ scale: 0.97 }}
               onClick={onCreate}
               aria-label={createLabel ?? t.navCreate}
-              className="flex h-10 w-full shrink-0 items-center overflow-hidden rounded-xl bg-accent text-on-accent transition-colors hover:bg-accent/90"
+              className="flex h-10 w-full min-w-10 shrink-0 items-center overflow-hidden rounded-xl bg-accent text-on-accent transition-colors hover:bg-accent/90"
             >
-              <span className={SLOT}>
+              <span className="flex w-10 shrink-0 items-center justify-center">
                 <Plus size={18} strokeWidth={2.5} />
               </span>
               <NavLabel className="text-base font-medium">{createLabel ?? t.navCreate}</NavLabel>

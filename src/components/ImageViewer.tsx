@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
@@ -19,13 +19,14 @@ export interface ImageViewerProps {
   /** Index to show; null closes the viewer. */
   index: number | null;
   onIndexChange: (index: number | null) => void;
+  details?: ReactNode;
 }
 
 /**
  * Full-screen image inspection for the image library and chat attachments. Arrow keys
  * page, Escape closes, +/- zoom, and a zoomed image pans by drag.
  */
-export function ImageViewer({ images, index, onIndexChange }: ImageViewerProps) {
+export function ImageViewer({ images, index, onIndexChange, details }: ImageViewerProps) {
   const { strings: t } = useCrispStrings();
   const [zoom, setZoom] = useState(1);
   const open = index !== null;
@@ -59,7 +60,7 @@ export function ImageViewer({ images, index, onIndexChange }: ImageViewerProps) 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = overflow;
-      restore.current?.focus?.();
+      restore.current?.focus?.({ preventScroll: true });
     };
   }, [open, onIndexChange, step]);
 
@@ -119,7 +120,8 @@ export function ImageViewer({ images, index, onIndexChange }: ImageViewerProps) 
             )}
           </div>
 
-          {image.caption && <p className="shrink-0 px-4 pb-4 text-center text-sm text-white/60">{image.caption}</p>}
+          {image.caption && <p className="max-h-[25dvh] shrink-0 overflow-y-auto whitespace-pre-wrap break-words px-4 pb-4 text-center text-sm text-white/60">{image.caption}</p>}
+          {details && <div className="max-h-[30dvh] shrink-0 overflow-y-auto border-t border-line bg-surface px-4 py-3 text-fg">{details}</div>}
         </motion.div>
       )}
     </AnimatePresence>,

@@ -89,7 +89,7 @@ export function DownloadItem({
         {!done && !failed && (
           <Progress value={status === "queued" || status === "verifying" ? undefined : pct} size="sm" />
         )}
-        <p className={cn("truncate text-sm tabular-nums", failed ? "text-danger" : "text-fg-3")}>{line}</p>
+        <p className={cn("text-sm tabular-nums", failed ? "text-danger" : "text-fg-3")}>{line}</p>
       </div>
 
       <div className="flex shrink-0 items-center gap-1">

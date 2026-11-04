@@ -182,7 +182,7 @@ export function Composer({
                  --composer-row — so under items-end the text and the icons share a
                  centre. At 40px against 44px buttons it sat 2px low. */
               className={cn(
-                "scrollbar-none min-h-[var(--composer-row)] flex-1 resize-none bg-transparent px-2 py-[calc((var(--composer-row)-var(--composer-line))/2)] leading-[var(--composer-line)] text-fg outline-none placeholder:text-fg-3 disabled:cursor-not-allowed",
+                "scrollbar-none min-h-[var(--composer-row)] flex-1 resize-none bg-transparent px-2 py-[calc((var(--composer-row)-var(--composer-line))/2)] leading-[var(--composer-line)] text-fg outline-none placeholder:truncate placeholder:text-fg-3 disabled:cursor-not-allowed",
                 composerText[fontSize].className,
               )}
               style={{ "--composer-line": composerText[fontSize].line } as CSSProperties}

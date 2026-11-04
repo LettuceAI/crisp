@@ -81,6 +81,16 @@ For notifications, mount `Toaster` once at the application root and call `toast.
 
 See the [component exports](src/components/index.ts) and [layout exports](src/layout/index.ts) for the full list. Component source files include their TypeScript prop definitions.
 
+## Markdown and restricted HTML
+
+`Prose` renders Markdown and leaves raw HTML as text by default. Opt in with `<Prose html>{message}</Prose>` for mixed Markdown and HTML. Content is parsed and sanitized as a syntax tree before React renders it; no raw HTML is inserted into the DOM.
+
+The policy supports inline emphasis, headings, lists, quotes, code, tables (including captions and cell spans), details/summary, definition lists, figures, ruby, time and bidirectional text. Images use the normal media tile/viewer callback, and links accept HTTP, HTTPS or mailto. Image sources accept HTTP and HTTPS. GFM checkboxes remain disabled.
+
+Inline styles support text colors and emphasis, bounded font sizes, alignment, solid/gradient backgrounds, borders, rounding, bounded spacing/sizing, shadows and in-flow flex/grid layouts. CSS values are checked against the property syntax; network URLs, indirect values and custom properties are rejected. Nested relative font sizes are clamped. Script, style, iframe, form, SVG/MathML and embedded content are removed, as are event handlers, IDs, arbitrary classes, positioning, transforms and animations. The HTML content root clips paint to its bounds. This restriction does not apply to an image viewer explicitly opened by the user.
+
+Supported styling is deliberately narrower than browser CSS. Keep `html` disabled for consumers that only need Markdown.
+
 ## Theming
 
 `ThemeProvider` applies theme variables to the document root and stores the selected theme in `localStorage` under `crisp.theme`. It restores the saved theme on startup, falling back to Midnight. Pass an `initial` theme to override that starting selection.

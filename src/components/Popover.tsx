@@ -85,9 +85,9 @@ export function PopoverAnchor({ children }: { children: ReactElement<Record<stri
 export function usePopoverPosition(
   anchorRef: React.MutableRefObject<HTMLElement | null>,
   panelRef: React.RefObject<HTMLElement | null>,
-  { open, side, align, offset, portal }: { open: boolean; side: PopoverSide; align: PopoverAlign; offset: number; portal?: HTMLElement | null },
+  { open, side, align, offset, portal, matchWidth = false }: { open: boolean; side: PopoverSide; align: PopoverAlign; offset: number; portal?: HTMLElement | null; matchWidth?: boolean },
 ) {
-  const [style, setStyle] = useState<{ top: number; left: number; minWidth?: number }>({ top: 0, left: 0 });
+  const [style, setStyle] = useState<{ top: number; left: number; minWidth?: number; width?: number; maxWidth?: number }>({ top: 0, left: 0 });
 
   useLayoutEffect(() => {
     if (!open) return;
@@ -101,6 +101,8 @@ export function usePopoverPosition(
       const originLeft = bounds?.left ?? 0;
       const bottom = bounds?.bottom ?? window.innerHeight;
       const right = bounds?.right ?? window.innerWidth;
+      const maxWidth = Math.max(0, right - originLeft - margin * 2);
+      const width = Math.min(matchWidth ? anchor.width : panel.width, maxWidth);
       let resolved = side;
 
       if (side === "bottom" && anchor.bottom + offset + panel.height > bottom - margin) resolved = "top";
@@ -110,16 +112,18 @@ export function usePopoverPosition(
       let left = 0;
       if (resolved === "bottom" || resolved === "top") {
         top = resolved === "bottom" ? anchor.bottom + offset : anchor.top - offset - panel.height;
-        left = align === "start" ? anchor.left : align === "end" ? anchor.right - panel.width : anchor.left + anchor.width / 2 - panel.width / 2;
+        left = align === "start" ? anchor.left : align === "end" ? anchor.right - width : anchor.left + anchor.width / 2 - width / 2;
       } else {
-        left = resolved === "right" ? anchor.right + offset : anchor.left - offset - panel.width;
+        left = resolved === "right" ? anchor.right + offset : anchor.left - offset - width;
         top = align === "start" ? anchor.top : align === "end" ? anchor.bottom - panel.height : anchor.top + anchor.height / 2 - panel.height / 2;
       }
 
       setStyle({
         top: Math.max(originTop + margin, Math.min(top, bottom - panel.height - margin)) - originTop,
-        left: Math.max(originLeft + margin, Math.min(left, right - panel.width - margin)) - originLeft,
+        left: Math.max(originLeft + margin, Math.min(left, right - width - margin)) - originLeft,
         minWidth: anchor.width,
+        width: anchor.width,
+        maxWidth,
       });
     };
     place();
@@ -129,7 +133,7 @@ export function usePopoverPosition(
       window.removeEventListener("scroll", place, true);
       window.removeEventListener("resize", place);
     };
-  }, [open, side, align, offset, portal, anchorRef, panelRef]);
+  }, [open, side, align, offset, portal, matchWidth, anchorRef, panelRef]);
 
   return style;
 }
@@ -138,7 +142,7 @@ export interface PopoverContentProps {
   side?: PopoverSide;
   align?: PopoverAlign;
   offset?: number;
-  /** Stretch to the trigger's width — what a select-style dropdown wants. */
+  /** Take the trigger's width, what a select-style dropdown wants. Never wider than the screen either way. */
   matchWidth?: boolean;
   className?: string;
   children: ReactNode;
@@ -147,7 +151,7 @@ export interface PopoverContentProps {
 export function PopoverContent({ side = "bottom", align = "start", offset = 6, matchWidth, className, children }: PopoverContentProps) {
   const { open, setOpen, id, anchorRef } = usePopover();
   const panelRef = useRef<HTMLDivElement>(null);
-  const position = usePopoverPosition(anchorRef, panelRef, { open, side, align, offset });
+  const position = usePopoverPosition(anchorRef, panelRef, { open, side, align, offset, matchWidth: Boolean(matchWidth) });
   useDismissLayer(open, () => setOpen(false));
 
   useEffect(() => {
@@ -184,7 +188,7 @@ export function PopoverContent({ side = "bottom", align = "start", offset = 6, m
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.97 }}
           transition={m.instant}
-          style={{ top: position.top, left: position.left, ...(matchWidth ? { minWidth: position.minWidth } : undefined) }}
+          style={{ top: position.top, left: position.left, maxWidth: position.maxWidth, ...(matchWidth ? { width: position.width } : undefined) }}
           className={cn("fixed z-70 rounded-xl border border-line bg-surface-2 p-1 shadow-raised", className)}
         >
           {children}

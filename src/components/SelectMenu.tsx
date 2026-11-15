@@ -199,7 +199,7 @@ export function SelectMenu<T extends string>(props: SelectMenuProps<T>) {
         </button>
       </PopoverTrigger>
 
-      <PopoverContent matchWidth className={cn("p-0", menuClassName)}>
+      <PopoverContent matchWidth={!menuClassName} className={cn("p-0", menuClassName)}>
         <div ref={listRef} id={listId} role="listbox" aria-multiselectable={multiple || undefined} className="scrollbar-thin max-h-72 overflow-y-auto p-1">
           {options.length === 0 && <p className="px-2.5 py-6 text-center text-sm text-fg-3">{t.selectMenuEmpty}</p>}
           {grouped.map(([group, list]) => (
@@ -228,7 +228,7 @@ export function SelectMenu<T extends string>(props: SelectMenuProps<T>) {
                     {option.icon && <span className="mt-0.5 shrink-0 text-fg-3">{option.icon}</span>}
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-base text-fg">{option.label}</span>
-                      {option.description && <span className="block truncate text-sm text-fg-3">{option.description}</span>}
+                      {option.description && <span className="block text-sm text-pretty break-words text-fg-3">{option.description}</span>}
                     </span>
                     {option.meta && <span className="mt-0.5 shrink-0 text-sm text-fg-3">{option.meta}</span>}
                     {isSelected && <Check size={16} className="mt-0.5 shrink-0 text-accent" />}

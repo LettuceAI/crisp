@@ -123,7 +123,7 @@ export function MenuContent({ align = "start", side = "bottom", className, child
           ref={listRef}
           id={id}
           role="menu"
-          style={{ top: position.top, left: position.left }}
+          style={{ top: position.top, left: position.left, maxWidth: position.maxWidth }}
           onKeyDown={onKeyDown}
           initial={{ opacity: 0, scale: 0.97, y: side === "bottom" ? -4 : 4 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

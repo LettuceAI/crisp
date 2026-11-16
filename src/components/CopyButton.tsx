@@ -17,7 +17,7 @@ export interface CopyButtonProps extends Omit<ButtonProps, "children" | "onClick
  * Copy with a confirmation that lives on the button itself, so the action doesn't need
  * a toast. The app writes this by hand wherever it copies a prompt, an error or an id.
  */
-export function CopyButton({ value, children, label, copiedLabel, className, ...rest }: CopyButtonProps) {
+export function CopyButton({ value, children, label, copiedLabel, className, size, ...rest }: CopyButtonProps) {
   const { strings: t } = useCrispStrings();
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | null>(null);
@@ -38,8 +38,8 @@ export function CopyButton({ value, children, label, copiedLabel, className, ...
 
   if (!children) {
     return (
-      <IconButton label={copied ? (copiedLabel ?? t.copyButtonCopied) : (label ?? t.copyButtonCopy)} onClick={copy} className={className}>
-        {copied ? <Check size={16} className="text-accent" /> : <Copy size={16} />}
+      <IconButton label={copied ? (copiedLabel ?? t.copyButtonCopied) : (label ?? t.copyButtonCopy)} onClick={copy} size={size} className={className}>
+        {copied ? <Check size={size === "sm" ? 14 : 16} className="text-accent" /> : <Copy size={size === "sm" ? 14 : 16} />}
       </IconButton>
     );
   }
@@ -47,6 +47,7 @@ export function CopyButton({ value, children, label, copiedLabel, className, ...
   return (
     <Button
       onClick={copy}
+      size={size}
       leading={copied ? <Check size={16} className="text-accent" /> : <Copy size={16} />}
       className={cn(className)}
       {...rest}

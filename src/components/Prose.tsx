@@ -17,6 +17,8 @@ export interface ProseProps {
   onImageClick?: (image: { src: string; alt: string }) => void;
   /** Allow sanitized HTML with restricted text and in-flow box styles. Off by default. */
   html?: boolean;
+  /** How fenced code looks. `chat` is the plain block for message text; see CodeBlock. */
+  codeVariant?: "panel" | "chat";
   className?: string;
 }
 
@@ -26,7 +28,7 @@ export interface ProseProps {
  *
  * HTML is opt-in and always passes through the restricted tag, attribute and style policy.
  */
-export function Prose({ children, size = "md", quotes = false, query, onImageClick, html = false, className }: ProseProps) {
+export function Prose({ children, size = "md", quotes = false, query, onImageClick, html = false, codeVariant = "panel", className }: ProseProps) {
   const inherited = size === "inherit";
   const components = useMemo<Components>(() => {
     const highlight = (text: string) => query ? <Highlight query={query}>{text}</Highlight> : text;
@@ -89,7 +91,7 @@ export function Prose({ children, size = "md", quotes = false, query, onImageCli
       pre: ({ children: c }) => {
         const blocks = Children.toArray(c);
         const block = blocks.length === 1 && isValidElement<{ children?: ReactNode; className?: string }>(blocks[0]) ? blocks[0] : null;
-        return <CodeBlock code={plainText(block ? block.props.children : c).replace(/\n$/, "")} label={block?.props.className?.replace("language-", "")} query={query} className="my-3" />;
+        return <CodeBlock code={plainText(block ? block.props.children : c).replace(/\n$/, "")} label={block?.props.className?.replace("language-", "")} query={query} variant={codeVariant} className={codeVariant === "chat" ? "my-2" : "my-3"} />;
       },
       table: ({ children: c, style }) => (
         <div className="scrollbar-thin my-3 max-w-full overflow-x-auto rounded-xl border border-line">
@@ -105,7 +107,7 @@ export function Prose({ children, size = "md", quotes = false, query, onImageCli
           : <img src={src} style={style} alt={alt ?? ""} className="my-3 max-w-full rounded-xl border border-line" />
         : null,
     };
-  }, [inherited, quotes, query, onImageClick]);
+  }, [inherited, quotes, query, onImageClick, codeVariant]);
   return (
     <div className={cn(!inherited && [size === "sm" ? "text-sm" : "text-base", "leading-relaxed text-fg"], "min-w-0", html && "max-w-full overflow-clip wrap-anywhere [contain:layout_paint]", className)}>
       <ReactMarkdown

@@ -45,6 +45,29 @@ describe("Prose message content", () => {
     expect(out).not.toContain('leading-relaxed');
   });
 
+  it("keeps a quote whole when emphasis sits inside it", () => {
+    const text = '"Fucking—*stupid*—get off me—" She tears the stockings down her calves. "Laundry! All of it! Sweatpants, where—right, your room, I\'m going, I\'m *going*—"';
+    const out = renderToStaticMarkup(<Prose size="inherit" quotes>{text}</Prose>);
+    const quoted = [...out.matchAll(/<span data-quote="">([\s\S]*?)<\/span>/g)].map((match) => match[1]!.replace(/<[^>]+>/g, "")).join("|");
+    expect(quoted).not.toContain("She tears");
+    expect(quoted).toContain("&quot;Fucking—");
+    expect(quoted).toContain("stupid");
+    expect(quoted).toContain("—get off me—&quot;");
+    expect(quoted).toContain("&quot;Laundry!");
+    expect(quoted).toContain("going");
+    expect(out).toContain('<span data-quote=""><em');
+  });
+
+  it("draws chat code as a plain block with a hidden copy icon", () => {
+    const out = renderToStaticMarkup(<Prose size="inherit" codeVariant="chat">{"```rust\nhello\n```"}</Prose>);
+    expect(out).toContain(">hello<");
+    expect(out).not.toContain(">rust</span>");
+    expect(out).not.toContain("border-b");
+    expect(out).toMatch(/aria-label="Copy"[^>]*opacity-0|opacity-0[^>]*aria-label="Copy"/);
+    expect(out).toContain("group-focus-within:opacity-100");
+    expect(renderToStaticMarkup(<Prose size="inherit">{"```rust\nhello\n```"}</Prose>)).toContain(">rust</span>");
+  });
+
   it("does not execute HTML or unsafe image URLs", () => {
     const out = html('<script>alert(1)</script>\n\n<img src=x onerror="alert(1)">\n\n![bad](javascript:alert%281%29)');
     expect(out).not.toMatch(/<script[ >]/);

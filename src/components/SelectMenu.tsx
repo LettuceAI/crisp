@@ -74,7 +74,6 @@ export function SelectMenu<T extends string>(props: SelectMenuProps<T>) {
     [multiple, props],
   );
 
-  const enabled = useMemo(() => options.filter((o) => !o.disabled), [options]);
   const grouped = useMemo(() => {
     const map = new Map<string, SelectMenuOption<T>[]>();
     for (const option of options) {
@@ -85,6 +84,10 @@ export function SelectMenu<T extends string>(props: SelectMenuProps<T>) {
     }
     return Array.from(map.entries());
   }, [options]);
+  const enabled = useMemo(
+    () => grouped.flatMap(([, list]) => list.filter((option) => !option.disabled)),
+    [grouped],
+  );
 
   const select = useCallback(
     (option: SelectMenuOption<T>) => {
